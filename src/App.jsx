@@ -5,6 +5,13 @@ const TG_BOT_TOKEN = '8748920850:AAELc92e93YypCmpm2B6szjBcJN4ufRYkg0';
 const TG_CHAT_ID = '8551504472';
 const ADMIN_PASSWORD = 'umarov2025';
 
+const IconBan = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>;
+const IconMan = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>;
+const IconGirl = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5z"/><path d="M17 9v4a2 2 0 0 0 2 2h1"/><path d="M7 9v4a2 2 0 0 1-2 2H4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>;
+const IconCrown = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>;
+const IconEdit = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+const IconTrash = () => <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>;
+
 const globalStyles = `
   * { box-sizing: border-box; }
   body { 
@@ -40,7 +47,7 @@ const globalStyles = `
 
   .ban-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(127, 29, 29, 0.1); pointer-events: none; }
   .ban-panel { max-width: 32rem; border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 0 50px rgba(239,68,68,0.2); z-index: 10; margin: 0 1rem; }
-  .ban-icon { font-size: 3.75rem; margin-bottom: 1.5rem; }
+  .ban-icon { font-size: 3.75rem; margin-bottom: 1.5rem; color: #ef4444; }
   .ban-title { font-size: 2.25rem; font-weight: bold; margin-bottom: 1rem; text-shadow: 2px 0 #ef4444, -2px 0 #3b82f6; animation: glitch 2s infinite; }
   @media(min-width: 768px){ .ban-title { font-size: 2.25rem; } }
   .ban-subtitle { color: #f87171; font-family: monospace; font-size: 1.125rem; margin-bottom: 2rem; letter-spacing: 0.1em; text-transform: uppercase; }
@@ -100,7 +107,7 @@ const globalStyles = `
 
   .msg-actions { display: none; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 0.5rem; background: rgba(0,0,0,0.6); padding: 0.25rem 0.5rem; border-radius: 0.5rem; gap: 0.5rem; white-space: nowrap; backdrop-filter: blur(4px); }
   .msg-row.me:hover .msg-actions { display: flex; }
-  .action-btn { background: none; border: none; font-size: 1rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; padding: 0; }
+  .action-btn { background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; padding: 0; color: white; display: flex; align-items: center; justify-content: center; }
   .action-btn:hover { opacity: 1; }
   .edit-area { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; min-width: 200px; }
   .edit-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #8b5cf6; color: white; padding: 0.5rem; border-radius: 0.5rem; font-family: inherit; font-size: 0.875rem; resize: vertical; }
@@ -117,7 +124,7 @@ const globalStyles = `
   @media (min-width: 768px) { .owner-wrap { max-width: 32rem; } }
   .owner-inner { background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(12px); padding: 1rem; border-radius: 1rem; display: flex; align-items: flex-start; gap: 1rem; border: 1px solid rgba(234, 179, 8, 0.2); }
   @media (min-width: 768px) { .owner-inner { padding: 1.25rem; } }
-  .owner-icon { font-size: 2.25rem; flex-shrink: 0; filter: drop-shadow(0 0 15px rgba(250,204,21,0.8)); animation: pulse 2s infinite; }
+  .owner-icon { font-size: 2.25rem; flex-shrink: 0; filter: drop-shadow(0 0 15px rgba(250,204,21,0.8)); animation: pulse 2s infinite; color: #facc15; }
   .owner-content { flex: 1; }
   .owner-title { background: linear-gradient(to right, #fde047, #eab308); -webkit-background-clip: text; color: transparent; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6875rem; margin: 0 0 0.25rem 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)); }
   @media (min-width: 768px) { .owner-title { font-size: 0.75rem; } }
@@ -164,7 +171,7 @@ const globalStyles = `
   .admin-table td { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
   .admin-table tr:hover td { background: rgba(255,255,255,0.05); }
   .user-cell { display: flex; align-items: center; gap: 0.75rem; }
-  .user-avatar { font-size: 1.5rem; }
+  .user-avatar { font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
   .user-nick { font-weight: bold; }
   .ip-cell { font-family: monospace; font-size: 0.875rem; color: #9ca3af; }
   .msg-badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; display: inline-block; }
@@ -213,7 +220,7 @@ const BanScreen = () => (
   <div className="screen-center bg-black">
     <div className="ban-overlay" />
     <div className="glass-panel ban-panel animate-fade-in">
-      <div className="ban-icon">🚫</div>
+      <div className="ban-icon"><IconBan /></div>
       <h1 className="ban-title">
         Siz Ban Yegansiz
       </h1>
@@ -272,8 +279,8 @@ const AvatarSelect = ({ nick, onComplete }) => {
   const [selected, setSelected] = useState(null);
 
   const avatars = [
-    { id: 'man', icon: '🧑', label: 'Man' },
-    { id: 'girl', icon: '👩', label: 'Girl' }
+    { id: 'man', icon: <IconMan />, label: 'Man' },
+    { id: 'girl', icon: <IconGirl />, label: 'Girl' }
   ];
 
   return (
@@ -506,7 +513,7 @@ const Chat = ({ user, onAdminClick }) => {
     }
   };
 
-  const getAvatarIcon = (type) => type === 'man' ? '🧑' : '👩';
+  const getAvatarIcon = (type) => type === 'man' ? <IconMan /> : <IconGirl />;
 
   return (
     <div className="chat-layout">
@@ -522,7 +529,7 @@ const Chat = ({ user, onAdminClick }) => {
         <button 
           onDoubleClick={onAdminClick} 
           className="icon-btn"
-          title="⚙️"
+          title="Admin Panel"
         >
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </button>
@@ -538,7 +545,7 @@ const Chat = ({ user, onAdminClick }) => {
                 <div key={msg.id || idx} className="owner-row animate-slide-up">
                   <div className="owner-wrap">
                     <div className="owner-inner">
-                      <div className="owner-icon">👑</div>
+                      <div className="owner-icon"><IconCrown /></div>
                       <div className="owner-content">
                         <h4 className="owner-title">Asosiy Boshqaruvchi</h4>
                         <p className="owner-text">{msg.message}</p>
@@ -580,8 +587,8 @@ const Chat = ({ user, onAdminClick }) => {
                   </div>
                   {isMe && editingId !== msg.id && (
                     <div className="msg-actions">
-                      <button onClick={() => { setEditingId(msg.id); setEditText(msg.message); }} className="action-btn" title="Tahrirlash">✏️</button>
-                      <button onClick={() => deleteMsg(msg.id)} className="action-btn" title="O'chirish">🗑️</button>
+                      <button onClick={() => { setEditingId(msg.id); setEditText(msg.message); }} className="action-btn" title="Tahrirlash"><IconEdit /></button>
+                      <button onClick={() => deleteMsg(msg.id)} className="action-btn" title="O'chirish"><IconTrash /></button>
                     </div>
                   )}
                 </div>
@@ -594,8 +601,8 @@ const Chat = ({ user, onAdminClick }) => {
 
       {isRestricted ? (
         <div className="chat-input-area" style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>
-            🚫 Siz Ban Yegansiz
+          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <IconBan /> Siz Ban Yegansiz
           </div>
         </div>
       ) : (
@@ -790,7 +797,7 @@ const AdminPanel = ({ onClose }) => {
                 {usersList.map(u => (
                   <tr key={u.id}>
                     <td className="user-cell">
-                      <span className="user-avatar">{u.avatar === 'man' ? '🧑' : '👩'}</span>
+                      <span className="user-avatar">{u.avatar === 'man' ? <IconMan /> : <IconGirl />}</span>
                       <span className="user-nick">{u.nick}</span>
                     </td>
                     <td className="ip-cell hidden-md">{u.ip}</td>
