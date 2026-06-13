@@ -405,12 +405,12 @@ export default function App() {
   useEffect(() => {
     const handleContextMenu = (e) => { 
       if(!e.target.closest('.msg-bubble') && !e.target.closest('.context-menu') && !e.target.closest('.pinned-bar')) { 
-        e.preventDefault(); showToast("Mening saytimda bu ishlarni qilish mumkun emas"); 
+        e.preventDefault(); showToast("Biz lo'x emasmiz, o'ng tugmani bosib nima qilmoqchisiz?"); 
       } 
     };
     const handleKeyDown = (e) => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
-        e.preventDefault(); showToast("Mening saytimda bu ishlarni qilish mumkun emas");
+        e.preventDefault(); showToast("Bizni Axmoq deb o'ylamang?");
       }
     };
     document.addEventListener('contextmenu', handleContextMenu); document.addEventListener('keydown', handleKeyDown);
@@ -725,7 +725,7 @@ export default function App() {
                   <IconSearch/>
                   <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search" className="search-input" />
                 </div>
-                <div className="tabs"><div className="tab active">All</div><div className="tab">Unread</div></div>
+                <div className="tabs"><div className="tab active">All</div><div className="tab">Umarov</div></div>
               </div>
 
               {isMainMenuOpen && (
@@ -739,7 +739,7 @@ export default function App() {
                       <div className="mm-info-row">
                         <div className="mm-name-col">
                           <span className="mm-name">{user.nick} 🎻</span>
-                          <span className="mm-sub">App Preferences</span>
+                          <span className="mm-sub">Creator: @umarov_py</span>
                         </div>
                       </div>
                     </div>
@@ -884,7 +884,7 @@ export default function App() {
                     <div className="chat-input-area" style={{ position: 'relative' }}>
                       {showEmojiPanel && (
                         <div className="emoji-panel-container" onClick={e => e.stopPropagation()}>
-                          <div className="emoji-panel-title">Aura Emojis</div>
+                          <div className="emoji-panel-title">Umarov Emojis</div>
                           <div className="emoji-grid">
                             {AURA_EMOJIS.map((emoji, i) => (
                               <div 
@@ -899,7 +899,7 @@ export default function App() {
                         </div>
                       )}
                       <div className="chat-input-wrapper">
-                        <textarea ref={inputRef} value={input} onChange={(e) => { setInput(e.target.value); handleTyping(); }} onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { handleSend(e); } }} placeholder="Message" className="chat-input" rows="1" />
+                        <textarea ref={inputRef} value={input} onChange={(e) => { setInput(e.target.value); handleTyping(); }} onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { handleSend(e); } }} placeholder="Message..." className="chat-input" rows="1" />
                         <button type="button" className="icon-btn" onClick={(e)=>{e.stopPropagation(); setShowEmojiPanel(!showEmojiPanel);}}><IconSmile /></button>
                       </div>
                       {(input.trim() || editingId) ? (
