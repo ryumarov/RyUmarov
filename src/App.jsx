@@ -47,6 +47,7 @@ const globalStyles = `
   @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   @keyframes pulseType { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  @keyframes highlightBlink { 0%, 100% { background-color: transparent; } 20%, 80% { background-color: rgba(0, 122, 255, 0.15); } }
   
   .animate-fade-in { animation: fadeIn 0.2s ease forwards; }
   .animate-slide-up { animation: slideUp 0.3s ease forwards; }
@@ -133,13 +134,21 @@ const globalStyles = `
   .pinned-title { color: #007aff; font-size: 14px; font-weight: 600; margin: 0 0 2px 0; }
   .pinned-text { color: #8b9eb0; font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .messages-container { flex: 1; overflow-y: auto; padding: 16px 16px 8px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .messages-container { flex: 1; overflow-y: auto; padding: 16px 16px 8px 16px; display: flex; flex-direction: column; gap: 8px; overflow-x: hidden; }
   .messages-container::-webkit-scrollbar { width: 5px; }
   .messages-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
   
   .date-separator { align-self: center; background: rgba(0,0,0,0.15); color: #fff; font-size: 13px; font-weight: 500; padding: 4px 12px; border-radius: 12px; margin: 8px 0 16px 0; }
 
-  .msg-row { display: flex; width: 100%; position: relative; margin-bottom: 2px; }
+  .highlight-msg { animation: highlightBlink 1.5s ease-in-out; border-radius: 8px; }
+
+  .msg-row-container { position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 2px; }
+  .msg-swipe-bg { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; z-index: 1; }
+  .msg-swipe-icon { width: 36px; height: 36px; border-radius: 50%; background: #007aff; color: white; display: flex; align-items: center; justify-content: center; transform: scale(0); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  .msg-swipe-icon.active { transform: scale(1); }
+  .msg-row-content { width: 100%; transition: transform 0.2s ease-out; z-index: 2; position: relative; display: flex; }
+
+  .msg-row { display: flex; width: 100%; position: relative; }
   .msg-row.me { justify-content: flex-end; }
   .msg-row.other { justify-content: flex-start; }
   .msg-wrap { display: flex; gap: 8px; max-width: 80%; align-items: flex-end; position: relative; }
@@ -395,6 +404,7 @@ export default function App() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const lastApiTypingTime = useRef(0);
+  const touchState = useRef({}); // Swipe uchun ref hook
 
   const isBannedIP = JSON.parse(localStorage.getItem('ip_blacklist') || '[]').includes(user.ip);
   const isSpammedUser = JSON.parse(localStorage.getItem('user_blacklist') || '[]').some(u => u.id === user.id);
@@ -665,6 +675,77 @@ export default function App() {
     fetchMessages();
   };
 
+  // Yangi funksiyalar: Highlight Scroll va Swipe-to-Reply
+  const handleReplyClick = (e, repliedMsgId) => {
+    e.stopPropagation();
+    const el = document.getElementById(`msg-container-${repliedMsgId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('highlight-msg');
+      void el.offsetWidth; // Reflow forzar qilish (Animatsiya qayta ishlashi uchun)
+      el.classList.add('highlight-msg');
+      setTimeout(() => el.classList.remove('highlight-msg'), 1500);
+    }
+  };
+
+  const handleTouchStart = (e, id) => {
+    touchState.current[id] = { 
+      startX: e.touches[0].clientX, 
+      startY: e.touches[0].clientY, 
+      currentX: e.touches[0].clientX, 
+      isSwiping: undefined 
+    };
+  };
+
+  const handleTouchMove = (e, id) => {
+    if (!touchState.current[id]) return;
+    const touch = e.touches[0];
+    
+    const deltaX = touchState.current[id].startX - touch.clientX;
+    const deltaY = Math.abs(touchState.current[id].startY - touch.clientY);
+
+    // Agar foydalanuvchi yuqoriga yoki pastga scroll qilayotgan bo'lsa, horizontal swipe'ni bekor qilish
+    if (deltaY > 15 && touchState.current[id].isSwiping === undefined) {
+       touchState.current[id].isSwiping = false;
+    }
+    if (touchState.current[id].isSwiping === false) return;
+
+    if (deltaX > 5 && touchState.current[id].isSwiping === undefined) {
+       touchState.current[id].isSwiping = true;
+    }
+
+    if (touchState.current[id].isSwiping) {
+       const diff = Math.max(0, Math.min(deltaX, 80)); // Faqat chapga, maksimal 80px
+       const el = document.getElementById(`swipe-content-${id}`);
+       const icon = document.getElementById(`swipe-icon-${id}`);
+       
+       if (el) el.style.transform = `translateX(-${diff}px)`;
+       if (icon) {
+         if (diff > 45) icon.classList.add('active');
+         else icon.classList.remove('active');
+       }
+    }
+  };
+
+  const handleTouchEnd = (e, msg) => {
+    const state = touchState.current[msg.id];
+    if (!state) return;
+    const touch = e.changedTouches[0];
+    const deltaX = state.startX - touch.clientX;
+    
+    const el = document.getElementById(`swipe-content-${msg.id}`);
+    const icon = document.getElementById(`swipe-icon-${msg.id}`);
+    
+    if (el) el.style.transform = `translateX(0px)`;
+    if (icon) icon.classList.remove('active');
+
+    if (state.isSwiping && deltaX > 45) {
+      setReplyingTo(msg);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+    delete touchState.current[msg.id];
+  };
+
   const getPId = (id1, id2) => [id1, id2].sort().join('_');
   
   const globalMsgs = messages.filter(m => !m.isSystem && (!m.chatId || m.chatId === 'global'));
@@ -804,7 +885,7 @@ export default function App() {
                   </div>
 
                   {pinnedMessage && (
-                    <div className="pinned-bar" onClick={() => document.getElementById(`msg-${pinnedMessage.id}`)?.scrollIntoView({behavior:'smooth'})}>
+                    <div className="pinned-bar" onClick={() => document.getElementById(`msg-container-${pinnedMessage.id}`)?.scrollIntoView({behavior:'smooth'})}>
                       <div className="pinned-line"></div>
                       <div className="pinned-content"><p className="pinned-title">Pinned Message</p><p className="pinned-text">{pinnedMessage.message}</p></div>
                       <button className="icon-btn" style={{padding:0}} onClick={(e) => { e.stopPropagation(); setContextMenu({msg: pinnedMessage}); executeAction('pin'); }}><IconPin/></button>
@@ -821,37 +902,58 @@ export default function App() {
                       const nameColor = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][msg.userId.length % 6];
 
                       return (
-                        <div key={msg.id || idx} id={`msg-${msg.id}`} className={`msg-row ${isMe ? 'me' : 'other'}`}>
-                          <div className="msg-wrap">
-                            {!isMe && activeChatDetails.isGroup && <div className="msg-avatar-small" style={{background: nameColor}}>{msg.nickname.charAt(0).toUpperCase()}</div>}
-                            <div className={`msg-bubble ${contextMenu?.msg.id === msg.id ? 'selected' : ''}`} onContextMenu={(e) => handleContextMenu(e, msg)}>
-                              {!isMe && activeChatDetails.isGroup && <span className="msg-nick" style={{color: nameColor}}>{msg.nickname}</span>}
-                              
-                              {repliedMsg && (
-                                <div className="msg-reply-box" onClick={(e) => { e.stopPropagation(); document.getElementById(`msg-${repliedMsg.id}`)?.scrollIntoView({behavior:'smooth'}); }}>
-                                  <p className="msg-reply-name" style={{color: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][repliedMsg.userId.length % 6]}}>{repliedMsg.nickname}</p>
-                                  <p className="msg-reply-text">{repliedMsg.message}</p>
-                                </div>
-                              )}
-
-                              {msg.forwardedFrom && <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>}
-
-                              <p className="msg-text">{msg.message}</p>
-                              
-                              <div className="msg-footer">
-                                <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                {isMe && <span className="msg-status">{seenCount > 1 ? <IconDoubleCheck /> : <IconCheck color="#8b9eb0" />}</span>}
-                              </div>
-
-                              {hasReactions && (
-                                <div className="msg-reactions">
-                                  {Object.entries(msg.reactions).map(([em, users]) => (
-                                    <div key={em} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); handleReaction(em); }}>
-                                      {em} <span style={{fontWeight:'600', marginLeft:'2px'}}>{users.length > 1 ? users.length : ''}</span>
+                        <div key={msg.id || idx} id={`msg-container-${msg.id}`} className="msg-row-container">
+                          
+                          <div className="msg-swipe-bg">
+                            <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}>
+                              <IconReply />
+                            </div>
+                          </div>
+                          
+                          <div 
+                            id={`swipe-content-${msg.id}`}
+                            className="msg-row-content"
+                            onTouchStart={(e) => handleTouchStart(e, msg.id)}
+                            onTouchMove={(e) => handleTouchMove(e, msg.id)}
+                            onTouchEnd={(e) => handleTouchEnd(e, msg)}
+                          >
+                            <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
+                              <div className="msg-wrap">
+                                {!isMe && activeChatDetails.isGroup && <div className="msg-avatar-small" style={{background: nameColor}}>{msg.nickname.charAt(0).toUpperCase()}</div>}
+                                <div 
+                                  className={`msg-bubble ${contextMenu?.msg.id === msg.id ? 'selected' : ''}`} 
+                                  onContextMenu={(e) => handleContextMenu(e, msg)}
+                                  onDoubleClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setTimeout(()=>inputRef.current?.focus(), 100); }}
+                                >
+                                  {!isMe && activeChatDetails.isGroup && <span className="msg-nick" style={{color: nameColor, fontSize: '13px', fontWeight: '600', marginBottom: '4px'}}>{msg.nickname}</span>}
+                                  
+                                  {repliedMsg && (
+                                    <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, repliedMsg.id)}>
+                                      <p className="msg-reply-name" style={{color: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][repliedMsg.userId.length % 6]}}>{repliedMsg.nickname}</p>
+                                      <p className="msg-reply-text">{repliedMsg.message}</p>
                                     </div>
-                                  ))}
+                                  )}
+
+                                  {msg.forwardedFrom && <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>}
+
+                                  <p className="msg-text">{msg.message}</p>
+                                  
+                                  <div className="msg-footer">
+                                    <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    {isMe && <span className="msg-status">{seenCount > 1 ? <IconDoubleCheck /> : <IconCheck color="#8b9eb0" />}</span>}
+                                  </div>
+
+                                  {hasReactions && (
+                                    <div className="msg-reactions">
+                                      {Object.entries(msg.reactions).map(([em, users]) => (
+                                        <div key={em} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); handleReaction(em); }}>
+                                          {em} <span style={{fontWeight:'600', marginLeft:'2px'}}>{users.length > 1 ? users.length : ''}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </div>
                         </div>
