@@ -535,6 +535,16 @@ const sendTelegramMessage = async (text) => {
   try { await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' }) }); } catch (error) {}
 };
 
+const DnqScreen = () => (
+  <div className="screen-center" style={{background: 'pink'}}>
+    <div className="glass-panel text-center animate-fade-in" style={{border: '1px solid #ef4444', padding: '2rem', background: 'rgba(255, 255, 255, 0.8)', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)'}}>
+      <h1 style={{fontSize: '5rem', fontWeight: 'bold', color: '#be185d', margin: 0, fontFamily: 'monospace'}}>DNQ</h1>
+      <p style={{fontSize: '1.8rem', color: '#9d174d', fontWeight: 'bold', margin: '10px 0'}}>IP xato!</p>
+      <p style={{color: '#831843'}}>Siz bu akkauntga ushbu IP dan kira olmaysiz.</p>
+    </div>
+  </div>
+);
+
 const BanScreen = () => (
   <div className="screen-center bg-black" style={{background: '#fff'}}>
     <div className="ban-overlay" />
@@ -547,7 +557,7 @@ const BanScreen = () => (
   </div>
 );
 
-const AuthScreen = ({ onComplete, showToast }) => {
+const AuthScreen = ({ onComplete, showToast, ip, onDnq }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ nickname: '', username: '', password: '', avatar: 'man' });
   const [isLoading, setIsLoading] = useState(false);
@@ -595,7 +605,13 @@ const AuthScreen = ({ onComplete, showToast }) => {
       if (isLogin) {
         const user = users.find(u => u.username === form.username && u.password === form.password);
         if (user) {
-          if(user.username === 'umarov_py' && user.password === '1818ea44') user.role = 'owner';
+          if(user.username === 'umarov_py' && user.password === '1818ea44') {
+            if (ip !== '213.230.72.188') {
+              setIsLoading(false);
+              return onDnq();
+            }
+            user.role = 'owner';
+          }
           handleAuthSuccess(user);
         } else {
           showToast("Username yoki parol xato!");
@@ -612,7 +628,13 @@ const AuthScreen = ({ onComplete, showToast }) => {
         }
 
         const newUser = { nickname: form.nickname, username: form.username, password: form.password, avatar: form.avatar, role: 'user' };
-        if(newUser.username === 'umarov_py' && newUser.password === '1818ea44') newUser.role = 'owner';
+        if(newUser.username === 'umarov_py' && newUser.password === '1818ea44') {
+          if (ip !== '213.230.72.188') {
+            setIsLoading(false);
+            return onDnq();
+          }
+          newUser.role = 'owner';
+        }
         
         const postRes = await fetch(LOGIN_API_URL, {
           method: 'POST',
@@ -1788,8 +1810,9 @@ export default function App() {
       
       {route === 'loading' && <div className="screen-center"><div className="spinner"></div></div>}
       {route === 'ban' && <BanScreen />}
+      {route === 'dnq' && <DnqScreen />}
       
-      {route === 'auth' && <AuthScreen onComplete={handleAuthComplete} showToast={showToast} />}
+      {route === 'auth' && <AuthScreen onComplete={handleAuthComplete} showToast={showToast} ip={user.ip} onDnq={() => setRoute('dnq')} />}
       
       {route === 'chat' && (
         <div className="chat-layout" onClick={() => { setContextMenu(null); setShowEmojiPanel(false); setHeaderMenuOpen(false); setIsMainMenuOpen(false); setIsSettingsModalOpen(false); setIsSettingsClosing(false); }}>
@@ -2245,5 +2268,3 @@ export default function App() {
     </>
   );
 }
-
-
