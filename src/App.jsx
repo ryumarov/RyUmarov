@@ -3,6 +3,7 @@
 const MOCK_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Menu';
 const LOGIN_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Login';
 const SETTINGS_API_URL = 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/umarov';
+const AUDIO_API_URL = 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/audio';
 const TG_BOT_TOKEN = '8748920850:AAELc92e93YypCmpm2B6szjBcJN4ufRYkg0';
 const TG_CHAT_ID = '8551504472';
 const ADMIN_PASSWORD = '1818ea44';
@@ -39,6 +40,10 @@ const IconStar = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="cur
 const IconDiamond = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 22 12 12 22 2 12 22"/></svg>;
 const IconFire = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
 const IconShield = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+const IconMic = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>;
+const IconPlay = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconClock = ({ color = "currentColor" }) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 
 const IconAuthMan = () => (
   <svg viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -516,7 +521,121 @@ const globalStyles = `
   .title-effect-neon { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor); }
   
   .user-badge { display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; vertical-align: middle; }
+
+  /* Audio Player Styles */
+  .audio-player-wrapper { display: flex; align-items: center; gap: 12px; min-width: 200px; padding: 4px; }
+  .audio-play-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--text-blue); color: #fff; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.1s; }
+  .audio-play-btn:active { transform: scale(0.9); }
+  .audio-progress-container { flex: 1; display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+  .audio-slider { width: 100%; height: 4px; border-radius: 2px; -webkit-appearance: none; background: rgba(0,0,0,0.15); outline: none; cursor: pointer; margin: 0; padding: 0; }
+  .audio-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--text-blue); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  body.dark .audio-slider { background: rgba(255,255,255,0.2); }
+  .audio-time { font-size: 11px; color: var(--text-icon); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .msg-row.me .audio-play-btn { background: #fff; color: var(--text-blue); }
+  .msg-row.me .audio-slider { background: rgba(0,0,0,0.15); }
+  .msg-row.me .audio-slider::-webkit-slider-thumb { background: var(--text-blue); }
+  body.dark .msg-row.me .audio-slider { background: rgba(255,255,255,0.3); }
+  body.dark .msg-row.me .audio-slider::-webkit-slider-thumb { background: #fff; }
+
+  /* Chat Switcher */
+  .chat-switcher-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.15s ease-out; }
+  .chat-switcher-box { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; display: flex; gap: 8px; max-width: 90vw; overflow-x: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+  .chat-switcher-box::-webkit-scrollbar { display: none; }
+  .switcher-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 12px; cursor: pointer; min-width: 90px; max-width: 100px; transition: background 0.2s; }
+  .switcher-item.active { background: rgba(59, 130, 246, 0.25); }
+  .switcher-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .switcher-name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 `;
+
+const audioCache = {};
+
+const AudioBubble = ({ audioId, isMe }) => {
+  const [src, setSrc] = useState(audioCache[audioId] || null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioCache[audioId]) {
+      setSrc(audioCache[audioId]);
+    } else if (audioId && !audioId.startsWith('temp_')) {
+      fetch(`${AUDIO_API_URL}/${audioId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.base64) {
+            audioCache[audioId] = data.base64;
+            setSrc(data.base64);
+          }
+        }).catch(e => console.error("Audio load error:", e));
+    }
+  }, [audioId]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const updateProgress = () => setProgress((audio.currentTime / audio.duration) * 100 || 0);
+    const updateDuration = () => setDuration(audio.duration || 0);
+    const handleEnded = () => { setIsPlaying(false); setProgress(0); };
+
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [src]);
+
+  const togglePlay = (e) => {
+    e.stopPropagation();
+    if (!src || !audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSeek = (e) => {
+    e.stopPropagation();
+    if (!src || !audioRef.current) return;
+    const newTime = (e.target.value / 100) * audioRef.current.duration;
+    audioRef.current.currentTime = newTime;
+    setProgress(e.target.value);
+  };
+
+  const formatTime = (secs) => {
+    if (isNaN(secs)) return '0:00';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="audio-player-wrapper">
+      <button className="audio-play-btn" onClick={togglePlay}>
+        {isPlaying ? <IconPause /> : <IconPlay />}
+      </button>
+      <div className="audio-progress-container">
+        {src ? (
+          <>
+            <input type="range" className="audio-slider" min="0" max="100" value={progress} onChange={handleSeek} />
+            <div className="audio-time">{formatTime(audioRef.current?.currentTime || 0)} / {formatTime(duration)}</div>
+            <audio ref={audioRef} src={src} style={{ display: 'none' }} preload="metadata" />
+          </>
+        ) : (
+          <div style={{fontSize:'12px', color:'var(--text-icon)'}}>Yuklanmoqda...</div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Anti-DevTools va Tizim Himoyasi!
 (() => {
@@ -541,17 +660,61 @@ const globalStyles = `
   } catch (e) {}
 })();
 
-const getIP = async () => {
-  try { 
+const getDeviceInfo = () => {
+  const ua = navigator.userAgent;
+  let browser = "Noma'lum", os = "Noma'lum", type = "Desktop";
+  
+  if (/android/i.test(ua)) { os = "Android"; type = "Mobile"; }
+  else if (/iPad|iPhone|iPod/.test(ua)) { os = "iOS"; type = "Mobile"; }
+  else if (/Windows/.test(ua)) { os = "Windows"; }
+  else if (/Mac/.test(ua)) { os = "Mac OS"; }
+  else if (/Linux/.test(ua)) { os = "Linux"; }
+  
+  if (/tablet|ipad|playbook|silk/i.test(ua) || (os === 'Android' && !/Mobile/.test(ua))) type = "Tablet";
+  
+  if (/edg/i.test(ua)) browser = "Edge";
+  else if (/opr|opera/i.test(ua)) browser = "Opera";
+  else if (/chrome|crios/i.test(ua)) browser = "Chrome";
+  else if (/firefox|fxios/i.test(ua)) browser = "Firefox";
+  else if (/safari/i.test(ua)) browser = "Safari";
+  
+  return { browser, os, type };
+};
+
+const getVisitorData = async () => {
+  const fetchWithTimeout = async (url) => {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal }); 
-    clearTimeout(id);
-    const data = await res.json(); 
-    return data.ip; 
-  } catch { 
-    return `unknown_${Math.floor(Math.random() * 100000)}`; 
-  }
+    const id = setTimeout(() => controller.abort(), 3500);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(id);
+      return await res.json();
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  };
+
+  // 1-urinish: ipwho.is (limitlari ancha yaxshi va barqaror)
+  try { 
+    const data = await fetchWithTimeout('https://ipwho.is/');
+    if (data && data.success) return { ip: data.ip || '-', city: data.city || '-', country: data.country || '-', isp: data.connection?.isp || data.connection?.org || '-' };
+  } catch (e) {}
+
+  // 2-urinish: ipapi.co (zaxira varianti)
+  try { 
+    const data = await fetchWithTimeout('https://ipapi.co/json/');
+    if (data && data.ip && !data.error) return { ip: data.ip || '-', city: data.city || '-', country: data.country_name || '-', isp: data.org || '-' };
+  } catch (e) {}
+  
+  // 3-urinish: ipinfo.io (oxirgi zaxira varianti)
+  try {
+    const data = await fetchWithTimeout('https://ipinfo.io/json');
+    if (data && data.ip) return { ip: data.ip || '-', city: data.city || '-', country: data.country || '-', isp: data.org || '-' };
+  } catch(e) {}
+
+  // Hech biri ishlamasa (Adblocker yoki juda yomon ulanish)
+  return { ip: `unknown_${Math.floor(Math.random() * 100000)}`, city: '-', country: '-', isp: '-' };
 };
 
 const sendTelegramMessage = async (text) => {
@@ -1032,6 +1195,9 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isSettingsClosing, setIsSettingsClosing] = useState(false);
   
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+
   const [notifications, setNotifications] = useState([]);
   const [mutedUsers, setMutedUsers] = useState(() => JSON.parse(localStorage.getItem('muted_users') || '[]'));
   const [notifPos, setNotifPos] = useState(() => localStorage.getItem('notif_pos') || 'top-right');
@@ -1039,11 +1205,23 @@ export default function App() {
 
   const [viewProfileUser, setViewProfileUser] = useState(null);
 
+  // Chat Switcher State
+  const [showSwitcher, setShowSwitcher] = useState(false);
+  const [switcherIndex, setSwitcherIndex] = useState(0);
+  const chatListRef = useRef([]);
+  const activeChatIdRef = useRef('global');
+  const isSwitcherOpenRef = useRef(false);
+
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({ nick: '', username: '', bio: '', avatar: '' });
 
   const [isListeningToVoice, setIsListeningToVoice] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState('');
+
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recordingIntervalRef = useRef(null);
+  const isRecordingCanceledRef = useRef(false);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -1051,15 +1229,51 @@ export default function App() {
   const lastApiTypingTime = useRef(0);
   const touchState = useRef({}); 
   const isUserScrolling = useRef(false);
+  const emojiTimeout = useRef(null);
   
   const knownMsgIds = useRef(new Set());
   const isFirstLoad = useRef(true);
+  
+  // Asosiy qo'shilgan yechim: API serveri ID larni qaytarganda lokal ID lar bilan bog'lash.
+  const localIdMap = useRef({});
 
   const isBannedIP = JSON.parse(localStorage.getItem('ip_blacklist') || '[]').includes(user.ip);
   const isSpammedUser = JSON.parse(localStorage.getItem('user_blacklist') || '[]').some(u => u.id === user.id);
   const isRestricted = isBannedIP || isSpammedUser;
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+
+  // Qattiq Full Screen Majburiyati
+  useEffect(() => {
+    const enforceFullScreen = () => {
+      try {
+        if (!document.fullscreenElement && document.visibilityState === 'visible') {
+          const el = document.documentElement;
+          if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen().catch(()=>{});
+          else if (el.msRequestFullscreen) el.msRequestFullscreen().catch(()=>{});
+        }
+      } catch (e) {}
+    };
+
+    // Har qanday interaksiyada majburlash
+    const handleInteraction = () => enforceFullScreen();
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+
+    // Har 1 soniyada tekshirib qayta majburlash
+    const fsInterval = setInterval(() => {
+      enforceFullScreen();
+    }, 1000);
+
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+      document.removeEventListener('keydown', handleInteraction);
+      clearInterval(fsInterval);
+    };
+  }, []);
 
   const handleCloseSettings = () => {
     setIsSettingsClosing(true);
@@ -1089,13 +1303,15 @@ export default function App() {
     const titleText = isGlobal ? 'Global Chat' : msg.nickname;
     const bodyText = isGlobal ? `${msg.nickname}: ${msg.message}` : msg.message;
 
-    if ("Notification" in window && Notification.permission === "granted") {
+    // Chrome notification faqat foydalanuvchi boshqa tab yoki oynada bo'lganda chiqadi
+    if ("Notification" in window && Notification.permission === "granted" && !document.hasFocus()) {
       new Notification(titleText, {
         body: bodyText,
         icon: getAvatarImg(msg.avatar)
       });
     }
     
+    // In-app (sayt ichidagi) notification o'z xolicha ishlayveradi
     if (localStorage.getItem('in_app_notif') !== 'false') {
       const id = Date.now() + Math.random();
       setNotifications(prev => [...prev, { id, msg }]);
@@ -1157,7 +1373,8 @@ export default function App() {
 
   useEffect(() => {
     const initApp = async () => {
-      const currentIp = await getIP();
+      const visitor = await getVisitorData();
+      const currentIp = visitor.ip;
       const blacklist = JSON.parse(localStorage.getItem('ip_blacklist') || '[]');
       if (blacklist.includes(currentIp)) return setRoute('ban');
       
@@ -1175,7 +1392,15 @@ export default function App() {
         setRoute('chat');
       } else {
         if (!sessionStorage.getItem('auth_notified')) {
-          const msg = `🚨 <b>YANGI TASHRIF BUYURUVCHI!</b>\n\n🌐 <b>IP Manzil:</b> <code>${currentIp}</code>\n🔐 <b>Holati:</b> Login sahifasida (Kirmoqchi yoki ro'yxatdan o'tmoqchi)\n🕒 <b>Vaqt:</b> ${new Date().toLocaleString('uz-UZ')}`;
+          const dev = getDeviceInfo();
+          const msg = `🚨 <b>YANGI TASHRIF BUYURUVCHI!</b>\n\n` + 
+                      `🌐 <b>IP Manzil:</b> <code>${currentIp}</code>\n` +
+                      `🌍 <b>Lokatsiya:</b> ${visitor.city}, ${visitor.country}\n` +
+                      `🏢 <b>Provayder (ISP):</b> ${visitor.isp}\n\n` +
+                      `📱 <b>Qurilma:</b> ${dev.type} (${dev.os})\n` +
+                      `🧭 <b>Browser:</b> ${dev.browser}\n\n` +
+                      `🔐 <b>Holati:</b> Login sahifasida (Kirmoqchi yoki ro'yxatdan o'tmoqchi)\n` +
+                      `🕒 <b>Vaqt:</b> ${new Date().toLocaleString('uz-UZ')}`;
           sendTelegramMessage(msg);
           sessionStorage.setItem('auth_notified', 'true');
         }
@@ -1278,7 +1503,33 @@ export default function App() {
       const res = await fetch(MOCK_API_URL);
       if (!res.ok) return;
       const data = await res.json();
-      setMessages(data);
+      
+      // Xabarlarga API dagi ID lari bo'yicha kuchli bog'lanish yaratamiz
+      data.forEach(m => {
+         if (localIdMap.current[m.id]) {
+            m.clientId = localIdMap.current[m.id];
+         }
+      });
+      
+      setMessages(prev => {
+        const pending = prev.filter(m => m.isPending);
+        
+        // Asosiy tekshiruv: faqat clientId bo'yicha bog'laymiz
+        const apiSignatures = new Set(data.map(m => m.clientId).filter(Boolean));
+        
+        // Zaxira tekshiruv: agar clientId kelmay qolsa, vaqt orqali bog'lash (faqat sekuntgacha, chunki API millisekundni kesib yuboradi)
+        const normalizeTime = (ts) => Math.floor(new Date(ts).getTime() / 1000);
+        const apiTimeSignatures = new Set(data.map(m => `${m.userId}_${normalizeTime(m.timestamp)}`));
+
+        // Yangilanib API da ko'ringan xabarlarni endi kutayotgan(pending) ro'yxatidan tushiramiz
+        const stillPending = pending.filter(m => {
+           if (m.clientId && apiSignatures.has(m.clientId)) return false;
+           if (apiTimeSignatures.has(`${m.userId}_${normalizeTime(m.timestamp)}`)) return false;
+           return true;
+        });
+        
+        return [...data, ...stillPending].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      });
 
       const tRec = data.find(m => m.isTypingRecord);
       if (tRec) {
@@ -1366,6 +1617,17 @@ export default function App() {
     isUserScrolling.current = scrollHeight - scrollTop - clientHeight > 50; 
   };
 
+  const handleEmojiEnter = () => {
+    clearTimeout(emojiTimeout.current);
+    setShowEmojiPanel(true);
+  };
+
+  const handleEmojiLeave = () => {
+    emojiTimeout.current = setTimeout(() => {
+      setShowEmojiPanel(false);
+    }, 300);
+  };
+
   const handleTyping = (currentText) => {
     const now = Date.now();
     
@@ -1436,10 +1698,19 @@ export default function App() {
 
     if (currentEdit) {
       const msgToUpdate = messages.find(m => m.id === currentEdit);
-      await fetch(`${MOCK_API_URL}/${currentEdit}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...msgToUpdate, message: sendInput }) });
+      // Darhol lokal stateni yangilash (Optimistic UI)
+      setMessages(prev => prev.map(m => m.id === currentEdit ? { ...m, message: sendInput } : m));
+      
+      // Fonda API ga jo'natish
+      fetch(`${MOCK_API_URL}/${currentEdit}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...msgToUpdate, message: sendInput }) })
+        .then(() => fetchMessages());
     } else {
       const cId = activeChatId === 'global' ? 'global' : [user.id, activeChatId].sort().join('_');
+      const tempId = `temp_${Date.now()}`;
+      
       const newMessage = { 
+        id: tempId,
+        clientId: tempId,
         chatId: cId, 
         nickname: user.nick, 
         avatar: user.avatar, 
@@ -1452,16 +1723,195 @@ export default function App() {
         seenBy: [{ id: user.id, nick: user.nick, avatar: user.avatar }], 
         reactions: {}, 
         isPinned: false, 
-        replyToId: currentReply ? currentReply.id : null 
+        replyToId: currentReply ? currentReply.id : null,
+        isPending: true // Yuborilayotganini bildirish uchun
       };
-      await fetch(MOCK_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newMessage) });
+      
+      // Xabarni hech qanday kutishlarsiz darhol chatga qoshish (Srazi chiqadi)
+      setMessages(prev => [...prev, newMessage]);
+      setTimeout(() => { if (messagesContainerRef.current) messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight; }, 50);
+
+      // Xabarni API bazasiga joylash
+      const apiMessage = { ...newMessage };
+      delete apiMessage.id;
+      delete apiMessage.isPending;
+
+      fetch(MOCK_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(apiMessage) })
+        .then(res => res.json())
+        .then((savedMsg) => {
+           // API dan kelgan yangi ID va bizning vaqtincha ID ni bog'lab xotirada saqlaymiz
+           if (savedMsg && savedMsg.id) {
+             localIdMap.current[savedMsg.id] = tempId;
+           }
+           fetchMessages().then(async () => {
+             if (activeChatId === 'global') {
+               const res = await fetch(MOCK_API_URL); const allData = await res.json(); updateTg(allData);
+             }
+           });
+        });
     }
-    
-    fetchMessages().then(async () => {
-      if (activeChatId === 'global') {
-        const res = await fetch(MOCK_API_URL); const allData = await res.json(); updateTg(allData);
+  };
+
+  const startRecording = async () => {
+    try {
+      // Ovoz hajmini kichraytirish uchun mono kanal va past sampleRate ishlatamiz
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: { channelCount: 1, sampleRate: 16000 } 
+      });
+      
+      // Kuchli kompressiya (opus formati) orqali fayl hajmini keskin kamaytiramiz (API limitga tushish uchun)
+      let options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 12000 };
       }
-    });
+      
+      const mediaRecorder = new MediaRecorder(stream, options);
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
+        stream.getTracks().forEach(t => t.stop());
+        if (isRecordingCanceledRef.current) return;
+        
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64data = reader.result;
+          
+          // Audioni ham yozilgach darhol optimistik tarzda chatga joylash
+          const tempAudioId = `temp_audio_${Date.now()}`;
+          audioCache[tempAudioId] = base64data; // Keshga joylaymiz (srazi play bo'lishi uchun)
+          
+          const tempId = `temp_${Date.now()}`;
+          const cId = activeChatId === 'global' ? 'global' : [user.id, activeChatId].sort().join('_');
+          
+          const newMessage = { 
+            id: tempId,
+            clientId: tempId,
+            chatId: cId, 
+            nickname: user.nick, 
+            avatar: user.avatar, 
+            message: tempAudioId, 
+            type: 'audio', 
+            timestamp: new Date().toISOString(), 
+            userId: user.id, 
+            ip: user.ip, 
+            role: user.role, 
+            seenBy: [{ id: user.id, nick: user.nick, avatar: user.avatar }], 
+            reactions: {}, 
+            isPinned: false, 
+            replyToId: replyingTo ? replyingTo.id : null,
+            isPending: true
+          };
+          
+          setMessages(prev => [...prev, newMessage]);
+          setReplyingTo(null);
+          setTimeout(() => { if (messagesContainerRef.current) messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight; }, 50);
+          
+          setIsSendingAnim(true);
+          setTimeout(() => setIsSendingAnim(false), 200);
+
+          try {
+            
+            // Limitni tekshirish va o'chirish logikasi: Global Chatda ovozli xabarlar 4 yoki undan ko'p bo'lsa
+            if (activeChatId === 'global') {
+              try {
+                const checkRes = await fetch(MOCK_API_URL);
+                if (checkRes.ok) {
+                  const allMsgs = await checkRes.json();
+                  const globalAudios = allMsgs.filter(m => (!m.chatId || m.chatId === 'global') && m.type === 'audio')
+                                              .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                  
+                  // Agar 4 tadan ko'p bo'lsa, eng qadimiy 3 tasini o'chirib tashlaymiz
+                  if (globalAudios.length >= 4) {
+                    const toDelete = globalAudios.slice(0, 3);
+                    for (const dMsg of toDelete) {
+                      await fetch(`${MOCK_API_URL}/${dMsg.id}`, { method: 'DELETE' }).catch(()=>{});
+                      if (dMsg.message && !dMsg.message.startsWith('temp_')) {
+                         await fetch(`${AUDIO_API_URL}/${dMsg.message}`, { method: 'DELETE' }).catch(()=>{});
+                      }
+                    }
+                  }
+                }
+              } catch (e) { console.error("Limitni tozalashda xatolik:", e); }
+            }
+
+            const uploadRes = await fetch(AUDIO_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ base64: base64data })
+            });
+            const audioData = await uploadRes.json();
+            
+            // Haqiqiy ID kelsa yana qaytadan yuklamasligi uchun audio cache ga haqiqiy IDni ham tikib qoyamiz
+            audioCache[audioData.id] = base64data;
+            // Keshdan eskisini ham o'chirmaymiz, chunki ekranda xali "temp_" o'qilayotgan bo'lishi mumkin!
+            
+            const apiMessage = { ...newMessage };
+            apiMessage.message = audioData.id;
+            delete apiMessage.id;
+            delete apiMessage.isPending;
+            
+            const postRes = await fetch(MOCK_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(apiMessage) });
+            const savedMsg = await postRes.json();
+            
+            // Audio manzil qayerga saqlangan bo'lsa ham unga o'zimizning tempId bilan belgi qo'yib qo'yamiz
+            if (savedMsg && savedMsg.id) {
+               localIdMap.current[savedMsg.id] = tempId;
+            }
+            fetchMessages();
+          } catch (err) {
+            showToast("Ovozli xabar yuborishda xatolik (API xotirasi to'lgan bo'lishi mumkin)!");
+          }
+        };
+      };
+      
+      mediaRecorderRef.current = mediaRecorder;
+      isRecordingCanceledRef.current = false;
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          // 60 soniyaga yetganda avtomatik to'xtatish
+          if (prev >= 59) {
+            setTimeout(() => {
+              if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                mediaRecorderRef.current.stop();
+                setIsRecording(false);
+                clearInterval(recordingIntervalRef.current);
+              }
+            }, 0);
+            return 60;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      showToast("Mikrofonga ruxsat yo'q yoki xatolik!");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      clearInterval(recordingIntervalRef.current);
+      setIsRecording(false);
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      isRecordingCanceledRef.current = true;
+      mediaRecorderRef.current.stop();
+      clearInterval(recordingIntervalRef.current);
+      setIsRecording(false);
+    }
   };
 
   const handleForwardTarget = async (targetChatId) => {
@@ -1777,6 +2227,10 @@ export default function App() {
   });
 
   const activeChatDetails = chatList.find(c => c.id === activeChatId) || chatList[0];
+  
+  chatListRef.current = chatList;
+  activeChatIdRef.current = activeChatId;
+
   const activeMessages = messages.filter(m => !m.isSystem && (activeChatId === 'global' ? (!m.chatId || m.chatId === 'global') : m.chatId === getPId(user.id, activeChatId)));
   const pinnedMessage = activeMessages.slice().reverse().find(m => m.isPinned);
 
@@ -1815,7 +2269,7 @@ export default function App() {
     recognition.maxAlternatives = 1;
 
     setIsListeningToVoice(true);
-    setVoiceFeedback("Yashirin so'z ayting Umarov Boss...");
+    setVoiceFeedback("Mikrofonga 'Hello' deb ayting...");
 
     try {
       recognition.start();
@@ -1849,6 +2303,61 @@ export default function App() {
       }
     };
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl + Tab (yoki brauzerda sinab ko'rish uchun Ctrl + Q)
+      if (e.ctrlKey && (e.key === 'Tab' || e.code === 'KeyQ')) {
+        if (e.key === 'Tab') e.preventDefault(); 
+        
+        if (!isSwitcherOpenRef.current) {
+          isSwitcherOpenRef.current = true;
+          setShowSwitcher(true);
+          const list = chatListRef.current;
+          const currentIdx = list.findIndex(c => c.id === activeChatIdRef.current);
+          setSwitcherIndex((currentIdx + (e.shiftKey ? -1 : 1) + list.length) % list.length || 0);
+        } else {
+          setSwitcherIndex(prev => {
+            const list = chatListRef.current;
+            return (prev + (e.shiftKey ? -1 : 1) + list.length) % (list.length || 1);
+          });
+        }
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (e.key === 'Control') {
+        if (isSwitcherOpenRef.current) {
+          isSwitcherOpenRef.current = false;
+          setShowSwitcher(false);
+          setSwitcherIndex(prev => {
+            const selectedChat = chatListRef.current[prev];
+            if (selectedChat) {
+              setActiveChatId(selectedChat.id);
+            }
+            return 0;
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Animatsiya: Aktiv chatni markazga skroll qilish
+  useEffect(() => {
+    if (showSwitcher) {
+      const activeEl = document.getElementById(`sw-item-${switcherIndex}`);
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [switcherIndex, showSwitcher]);
 
   return (
     <>
@@ -1976,19 +2485,22 @@ export default function App() {
                     </div>
                     <div className="pm-body">
                       <div>
-                        <span className="pm-avatars-label">Choose Avatar or enter URL:</span>
+                        <span className="pm-avatars-label">Choose Avatar</span>
                         <div className="pm-avatars">
-                          {['man', 'girl', 'old', 'kpop'].map(type => (
-                            <div key={type} className={`pm-avatar-opt ${editProfileData.avatar === type ? 'selected' : ''}`} onClick={() => setEditProfileData({...editProfileData, avatar: type})}>
-                              <img src={getAvatarImg(type)} style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
-                            </div>
+                          {['man', 'girl', 'old', 'kpop'].map(av => (
+                            <button
+                              key={av}
+                              className={`pm-avatar-opt ${editProfileData.avatar === av ? 'selected' : ''}`}
+                              onClick={() => setEditProfileData({...editProfileData, avatar: av})}
+                            >
+                              <img src={getAvatarImg(av)} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                            </button>
                           ))}
                         </div>
-                        <input type="text" className="pm-input" style={{marginTop: '12px'}} placeholder="Custom Avatar Link (https://...)" value={editProfileData.avatar} onChange={e => setEditProfileData({...editProfileData, avatar: e.target.value})} />
                       </div>
                       <div className="pm-inputs">
-                        <input type="text" className="pm-input" placeholder="Name" value={editProfileData.nick} onChange={e => setEditProfileData({...editProfileData, nick: e.target.value})} maxLength={20} />
-                        <input type="text" className="pm-input" placeholder="@username" value={editProfileData.username} onChange={e => setEditProfileData({...editProfileData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '')})} maxLength={20} />
+                        <input type="text" className="pm-input" placeholder="Nickname" value={editProfileData.nick} onChange={e => setEditProfileData({...editProfileData, nick: e.target.value})} maxLength={20} />
+                        <input type="text" className="pm-input" placeholder="Username" value={editProfileData.username} onChange={e => setEditProfileData({...editProfileData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '')})} maxLength={20} />
                         <textarea className="pm-input pm-textarea" placeholder="Bio..." value={editProfileData.bio} onChange={e => setEditProfileData({...editProfileData, bio: e.target.value})} maxLength={100} />
                       </div>
                     </div>
@@ -2001,85 +2513,95 @@ export default function App() {
               )}
 
               <div className="chat-list">
-                {chatList.map((c, idx) => (
-                  <div key={c.id} className={`chat-item ${activeChatId === c.id ? 'active' : ''}`} onClick={() => setActiveChatId(c.id)} style={{ animationDelay: `${idx * 0.05}s` }}>
-                    <div className="chat-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor, overflow: 'hidden'}} onClick={(e) => { if(c.id !== 'global') handleViewProfile(e, c.id); }}>
-                      {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
-                    </div>
-                    <div className="chat-item-content">
-                      <div className="chat-item-top">
-                        <span className="chat-item-name" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {c.name}
-                          {c.role === 'owner' && <span style={{fontSize:'9px', background:'#fbbf24', color:'#000', padding:'1px 4px', borderRadius:'4px', fontWeight:'bold', lineHeight:'1.2'}}>OWNER 👑</span>}
-                          {c.role === 'admin' && <span style={{fontSize:'9px', background:'#10b981', color:'#fff', padding:'1px 4px', borderRadius:'4px', fontWeight:'bold', lineHeight:'1.2'}}>ADMIN 🛡️</span>}
-                        </span>
-                        <span className="chat-item-time">{c.lastMsgObj ? new Date(c.lastMsgObj.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</span>
+                {chatList.map(c => {
+                  const hasDraft = c.id !== 'global' && c.id === activeChatId && input.length > 0;
+                  const typists = typingUsers.filter(u => u.chatId === c.id && u.id !== user.id && Date.now() - u.time < 1000);
+                  const isTyping = typists.length > 0;
+                  
+                  return (
+                    <div key={c.id} className={`chat-item ${activeChatId === c.id ? 'active' : ''}`} onClick={() => { setActiveChatId(c.id); setSearch(''); }}>
+                      <div className="chat-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
+                        {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
                       </div>
-                      <div className="chat-item-bottom">
-                        <span className="chat-item-msg">{c.lastMsgObj ? (c.lastMsgObj.userId === user.id ? `You: ${c.lastMsgObj.message}` : `${c.lastMsgObj.nickname}: ${c.lastMsgObj.message}`) : 'Saytga xush kelibsiz!'}</span>
-                        {c.unread > 0 && <span className="chat-badge">{c.unread}</span>}
+                      <div className="chat-item-content">
+                        <div className="chat-item-top">
+                          <span className="chat-item-name">{c.name} {c.role === 'owner' ? '👑' : c.role === 'admin' ? '🛡️' : ''}</span>
+                          {c.lastMsgObj && <span className="chat-item-time">{new Date(c.lastMsgObj.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                        </div>
+                        <div className="chat-item-bottom">
+                          {isTyping ? (
+                            <span className="typing-indicator" style={{color: activeChatId === c.id ? '#fff' : 'var(--text-blue)'}}>typing...</span>
+                          ) : hasDraft ? (
+                            <span className="chat-item-msg" style={{color: '#ef4444'}}>Draft: {input}</span>
+                          ) : (
+                            <span className="chat-item-msg">
+                              {c.lastMsgObj ? (c.lastMsgObj.userId === user.id ? `Siz: ${c.lastMsgObj.type === 'audio' ? 'Ovozli xabar' : c.lastMsgObj.message}` : (c.lastMsgObj.type === 'audio' ? 'Ovozli xabar' : c.lastMsgObj.message)) : c.members}
+                            </span>
+                          )}
+                          {c.unread > 0 && <span className="chat-badge">{c.unread}</span>}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             <div className={`chat-area ${!activeChatId ? 'hidden' : ''}`} style={chatAreaStyle}>
-              {activeChatId && activeChatDetails ? (
+              {activeChatId && (
                 <>
-                  <div className="chat-header">
+                  <div className="chat-header" onClick={() => {
+                     if(activeChatDetails && !activeChatDetails.isGroup) handleViewProfile({stopPropagation:()=>{}}, activeChatId);
+                  }}>
                     <div className="header-left">
-                      <button className="back-btn" onClick={() => setActiveChatId(null)}><IconChevronLeft/> <span className="back-badge" style={{color: 'var(--text-blue)', background:'transparent', padding:0}}>{chatList.reduce((a,b)=>a+b.unread,0) || ''}</span></button>
-                      <div className="header-info" onClick={(e) => { if(activeChatDetails.id !== 'global') handleViewProfile(e, activeChatDetails.id) }}>
-                        <div className="header-avatar" style={{background: activeChatDetails.avatarType ? 'transparent' : activeChatDetails.avatarColor, overflow: 'hidden'}}>
+                      <button className="back-btn" onClick={(e) => { e.stopPropagation(); setActiveChatId(null); }}><IconChevronLeft/></button>
+                      <div className="header-info">
+                        <div className="header-avatar" style={{background: activeChatDetails.avatarType ? 'transparent' : activeChatDetails.avatarColor}}>
                           {activeChatDetails.avatarType ? <img src={getAvatarImg(activeChatDetails.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : activeChatDetails.avatarText}
                         </div>
                         <div className="header-text">
-                          <h1 className="header-title">{activeChatDetails.name}</h1>
-                          <p className="header-subtitle">
-                            {activeTypists.length > 0 ? <span className="typing-indicator">{subtitleText}</span> : subtitleText}
-                          </p>
+                          <h3 className="header-title">{activeChatDetails.name} {activeChatDetails.role === 'owner' ? '👑' : activeChatDetails.role === 'admin' ? '🛡️' : ''}</h3>
+                          <p className="header-subtitle">{subtitleText}</p>
                         </div>
                       </div>
                     </div>
-                    <div style={{ position: 'relative' }}>
+                    <div style={{position: 'relative'}}>
                       <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setHeaderMenuOpen(!headerMenuOpen); }}><IconMore/></button>
                       {headerMenuOpen && (
-                        <div className="header-dropdown" onClick={e => e.stopPropagation()}>
-                          <div className="header-dropdown-item" onClick={handleChangeWallpaper} style={{ color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <IconImage /> Wallpaper
-                            </div>
-                            {user.role !== 'admin' && user.role !== 'owner' && <IconLock />}
-                          </div>
-                          <div className="header-dropdown-item" onClick={handleClearAll}>
-                            <IconTrash /> Clear All
-                          </div>
+                        <div className="header-dropdown">
+                          <div className="header-dropdown-item" onClick={handleChangeWallpaper} style={{color: 'var(--text-main)'}}><IconImage/> Change Wallpaper</div>
+                          <div className="header-dropdown-item" onClick={handleClearAll}><IconTrash/> Clear History</div>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {pinnedMessage && (
-                    <div className="pinned-bar" onClick={() => document.getElementById(`msg-container-${pinnedMessage.id}`)?.scrollIntoView({behavior:'smooth'})}>
+                    <div className="pinned-bar" onClick={() => handleReplyClick({stopPropagation:()=>{}}, pinnedMessage.id)}>
                       <div className="pinned-line"></div>
-                      <div className="pinned-content"><p className="pinned-title">Pinned Message</p><p className="pinned-text">{pinnedMessage.message}</p></div>
-                      <button className="icon-btn" style={{padding:0}} onClick={(e) => { e.stopPropagation(); setContextMenu({msg: pinnedMessage}); executeAction('pin'); }}><IconPin/></button>
+                      <div className="pinned-content">
+                        <h4 className="pinned-title">Pinned Message</h4>
+                        <p className="pinned-text">{pinnedMessage.type === 'audio' ? 'Ovozli xabar' : pinnedMessage.message}</p>
+                      </div>
+                      <button className="icon-btn" style={{padding:'4px'}} onClick={(e) => {
+                        e.stopPropagation();
+                        fetch(`${MOCK_API_URL}/${pinnedMessage.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...pinnedMessage, isPinned: false }) }).then(fetchMessages);
+                      }}><IconClose/></button>
                     </div>
                   )}
 
                   <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
-                    <div className="date-separator">Today</div>
                     {activeMessages.map((msg, idx) => {
                       const isMe = msg.userId === user.id;
+                      const showDate = idx === 0 || new Date(msg.timestamp).toLocaleDateString() !== new Date(activeMessages[idx - 1].timestamp).toLocaleDateString();
                       const seenCount = (msg.seenBy || []).length;
-                      const hasReactions = Object.keys(msg.reactions || {}).length > 0;
-                      const repliedMsg = msg.replyToId ? messages.find(m => m.id === msg.replyToId) : null;
-                      const nameColor = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][msg.userId.length % 6];
+                      const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0;
                       
-                      const liveUser = systemUsers.find(u => u.id === msg.userId) || msg;
-                      const msgVibeClass = liveUser.role === 'owner' ? 'owner-vibe' : liveUser.role === 'admin' ? 'admin-vibe' : '';
+                      let msgVibeClass = '';
+                      if (msg.role === 'owner') msgVibeClass = 'owner-vibe';
+                      else if (msg.role === 'admin') msgVibeClass = 'admin-vibe';
+                      
+                      const nameColor = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][msg.userId.length % 6];
 
                       const renderBadge = (u) => {
                         if (u.badgeIcon === 'star') return <span style={{color:'#f59e0b'}} className="user-badge"><IconStar/></span>;
@@ -2090,7 +2612,7 @@ export default function App() {
                       };
 
                       return (
-                        <div key={msg.id || idx} id={`msg-container-${msg.id}`} className="msg-row-container">
+                        <div key={`${msg.userId}_${msg.timestamp}`} id={`msg-container-${msg.id}`} className="msg-row-container">
                           
                           <div className="msg-swipe-bg">
                             <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}>
@@ -2098,13 +2620,13 @@ export default function App() {
                             </div>
                           </div>
                           
-                          <div 
-                            id={`swipe-content-${msg.id}`}
-                            className="msg-row-content"
-                            onTouchStart={(e) => handleTouchStart(e, msg.id)}
-                            onTouchMove={(e) => handleTouchMove(e, msg.id)}
-                            onTouchEnd={(e) => handleTouchEnd(e, msg)}
-                          >
+                          <div className="msg-row-content" id={`swipe-content-${msg.id}`}
+                               onTouchStart={(e) => handleTouchStart(e, msg.id)}
+                               onTouchMove={(e) => handleTouchMove(e, msg.id)}
+                               onTouchEnd={(e) => handleTouchEnd(e, msg)}>
+                               
+                            {showDate && <div style={{width:'100%', display:'flex', justifyContent:'center'}}><div className="date-separator">{new Date(msg.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}</div></div>}
+                            
                             <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
                               <div className="msg-wrap">
                                 {!isMe && activeChatDetails.isGroup && (
@@ -2119,29 +2641,30 @@ export default function App() {
                                 >
                                   {!isMe && activeChatDetails.isGroup && (
                                       <span className="msg-nick" style={{color: nameColor, fontSize: '13px', fontWeight: '600', marginBottom: '4px', display:'flex', alignItems:'center', flexWrap:'wrap', gap:'4px'}}>
-                                         {liveUser.role === 'owner' && <span style={{fontSize:'10px', background:'#fbbf24', color:'#000', padding:'1px 4px', borderRadius:'4px'}}>OWNER 👑</span>}
-                                         {liveUser.role === 'admin' && <span style={{fontSize:'10px', background:'#10b981', color:'#fff', padding:'1px 4px', borderRadius:'4px'}}>ADMIN 🛡️</span>}
-                                         
-                                         {liveUser.customTitle && (
-                                           <span style={{fontSize:'10px', padding:'1px 4px', borderRadius:'4px', border:`1px solid ${liveUser.titleColor || '#007aff'}`, color: liveUser.titleColor || '#007aff'}} className={liveUser.titleEffect ? `title-effect-${liveUser.titleEffect}` : ''}>
-                                             {liveUser.customTitle}
-                                           </span>
-                                         )}
-                                         
-                                         <span style={{display:'flex', alignItems:'center'}}>{liveUser.nickname || msg.nickname} {renderBadge(liveUser)}</span>
+                                         {msg.nickname} 
+                                         {msg.role === 'owner' && '👑'} 
+                                         {msg.role === 'admin' && '🛡️'}
+                                         {msg.customTitle && <span style={{fontSize:'10px', background:'rgba(0,0,0,0.1)', padding:'2px 4px', borderRadius:'4px', color:msg.titleColor||'currentColor'}}>{msg.customTitle}</span>}
+                                         {renderBadge(msg)}
                                       </span>
                                   )}
                                   
-                                  {repliedMsg && (
-                                    <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, repliedMsg.id)}>
-                                      <p className="msg-reply-name" style={{color: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][repliedMsg.userId.length % 6]}}>{repliedMsg.nickname}</p>
-                                      <p className="msg-reply-text">{repliedMsg.message}</p>
-                                    </div>
+                                  {msg.forwardedFrom && (
+                                    <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>
                                   )}
 
-                                  {msg.forwardedFrom && <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>}
-
-                                  <p className="msg-text">{msg.message}</p>
+                                  {msg.replyToId && messages.find(m => m.id === msg.replyToId) && (
+                                    <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, msg.replyToId)}>
+                                      <p className="msg-reply-name">{messages.find(m => m.id === msg.replyToId).nickname}</p>
+                                      <p className="msg-reply-text">{messages.find(m => m.id === msg.replyToId).type === 'audio' ? 'Ovozli xabar' : messages.find(m => m.id === msg.replyToId).message}</p>
+                                    </div>
+                                  )}
+                                  
+                                  {msg.type === 'audio' ? (
+                                    <AudioBubble audioId={msg.message} isMe={isMe} />
+                                  ) : (
+                                    <p className="msg-text">{msg.message}</p>
+                                  )}
                                   
                                   <div className="msg-footer">
                                     <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -2150,9 +2673,9 @@ export default function App() {
 
                                   {hasReactions && (
                                     <div className="msg-reactions">
-                                      {Object.entries(msg.reactions).map(([em, users]) => (
-                                        <div key={em} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); handleReaction(em); }}>
-                                          {em} <span style={{fontWeight:'600', marginLeft:'2px'}}>{users.length > 1 ? users.length : ''}</span>
+                                      {Object.entries(msg.reactions).map(([emoji, users]) => (
+                                        <div key={emoji} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); setTimeout(() => handleReaction(emoji), 0); }}>
+                                          {emoji} <span style={{fontSize:'11px', fontWeight:'600', marginLeft:'2px'}}>{users.length}</span>
                                         </div>
                                       ))}
                                     </div>
@@ -2164,109 +2687,146 @@ export default function App() {
                         </div>
                       );
                     })}
-                    <div ref={messagesEndRef} style={{height: '24px'}}/>
+                    <div ref={messagesEndRef} style={{height: '1px'}} />
                   </div>
 
                   {replyingTo && (
                     <div className="reply-preview-bar">
                       <div className="pinned-line"></div>
-                      <div className="pinned-content"><p className="pinned-title">Reply to {replyingTo.nickname}</p><p className="pinned-text">{replyingTo.message}</p></div>
+                      <div style={{flex: 1, overflow: 'hidden'}}>
+                        <h4 className="pinned-title">Replying to {replyingTo.nickname}</h4>
+                        <p className="pinned-text">{replyingTo.type === 'audio' ? 'Ovozli xabar' : replyingTo.message}</p>
+                      </div>
                       <button className="icon-btn" onClick={() => setReplyingTo(null)}><IconClose/></button>
                     </div>
                   )}
 
-                  {editingId && (
-                    <div className="reply-preview-bar">
-                      <div className="pinned-line" style={{background:'#ec4899'}}></div>
-                      <div className="pinned-content"><p className="pinned-title" style={{color:'#ec4899'}}>Edit Message</p><p className="pinned-text">{input}</p></div>
-                      <button className="icon-btn" onClick={() => {setEditingId(null); setInput('');}}><IconClose/></button>
+                  <form className="chat-input-area" onSubmit={handleSend}>
+                    <div className="icon-btn" onClick={() => setRoute('admin')} onContextMenu={(e) => {e.preventDefault(); setRoute('admin');}}>
+                      <IconLock/>
                     </div>
-                  )}
-
-                  {isRestricted ? (
-                    <div className="chat-input-area" style={{ justifyContent: 'center' }}>
-                      <div style={{ color: '#ef4444', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}><IconBan /> Siz Ban Yegansiz</div>
+                    
+                    <div className={`chat-input-wrapper ${isSendingAnim ? 'sending' : ''}`}>
+                      <textarea
+                        ref={inputRef}
+                        className="chat-input"
+                        placeholder="Message..."
+                        value={input}
+                        rows={1}
+                        onChange={(e) => { 
+                          setInput(e.target.value); 
+                          handleTyping(e.target.value); 
+                          e.target.style.height = 'auto'; 
+                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; 
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                            e.target.style.height = 'auto';
+                          }
+                        }}
+                      />
+                      <button type="button" className="icon-btn" style={{marginBottom:'2px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+                        <IconSmile />
+                      </button>
                     </div>
-                  ) : (
-                    <div className="chat-input-area" style={{ position: 'relative' }}>
-                      {showEmojiPanel && (
-                        <div className="emoji-panel-container" onClick={e => e.stopPropagation()}>
-                          <div className="emoji-panel-title">Aura Emojis</div>
-                          <div className="emoji-grid">
-                            {AURA_EMOJIS.map((emoji, i) => (
-                              <div 
-                                key={i} 
-                                className="aura-emoji" 
-                                onClick={(e) => { e.stopPropagation(); setInput(prev => prev + emoji); inputRef.current?.focus(); }}
-                              >
-                                {emoji}
-                              </div>
-                            ))}
+                    
+                    {input.trim() || isSendingAnim || editingId ? (
+                      <button type="submit" className={`send-btn-circle ${isSendingAnim ? 'sending' : ''}`} disabled={isSendingAnim}>
+                        <IconSend />
+                      </button>
+                    ) : (
+                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                        {isRecording ? (
+                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'20px', padding:'4px 12px', gap:'12px', animation:'fadeIn 0.2s'}}>
+                             <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'4px'}}>
+                               <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#fff'}}></div>
+                               {recordingTime}s
+                             </div>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={cancelRecording}><IconTrash/></button>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={stopRecording}><IconSend/></button>
                           </div>
-                        </div>
-                      )}
-                      <div className={`chat-input-wrapper ${isSendingAnim ? 'sending' : ''}`}>
-                        <textarea ref={inputRef} value={input} onChange={(e) => { setInput(e.target.value); handleTyping(e.target.value); }} onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { handleSend(e); } }} placeholder="Message" className="chat-input" rows="1" />
-                        <button type="button" className="icon-btn" onClick={(e)=>{e.stopPropagation(); setShowEmojiPanel(!showEmojiPanel);}}><IconSmile /></button>
+                        ) : (
+                          <button type="button" className="send-btn-circle" style={{background: 'var(--text-blue)'}} onClick={startRecording}>
+                            <IconMic />
+                          </button>
+                        )}
                       </div>
-                      {(input.trim() || editingId || isSendingAnim) ? (
-                        <button onClick={handleSend} className={`send-btn-circle ${isSendingAnim ? 'sending' : ''}`}><IconSend /></button>
-                      ) : null}
-                    </div>
-                  )}
+                    )}
+                  </form>
                 </>
-              ) : (
-                <div className="screen-center" style={{background:'transparent'}}><div style={{background:'var(--bg-hover)', color:'var(--text-main)', padding:'4px 12px', borderRadius:'12px', fontSize:'14px'}}>Select a chat to start messaging</div></div>
               )}
             </div>
+            
+            {showEmojiPanel && (
+              <div className="emoji-panel-container" onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+                <div className="emoji-panel-title">Smileys</div>
+                <div className="emoji-grid" style={{marginBottom:'8px'}}>
+                  {EMOJIS.map(emoji => (
+                    <div key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)}>{emoji}</div>
+                  ))}
+                </div>
+                <div className="emoji-panel-title">Aura & Objects</div>
+                <div className="emoji-grid">
+                  {AURA_EMOJIS.map(emoji => (
+                    <div key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)}>{emoji}</div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {contextMenu && contextMenu.visible && (() => {
-              const targetRole = contextMenu.msg.role || 'user';
-              const canEditDelete = contextMenu.msg.userId === user.id || 
-                                    (user.role === 'admin' && targetRole === 'user') || 
-                                    (user.role === 'owner' && targetRole !== 'owner');
-              return (
+            {contextMenu && contextMenu.visible && (
               <>
-                <div className="context-overlay" onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }} onClick={() => setContextMenu(null)} />
-                <div className="context-container" style={{ top: contextMenu.y, left: contextMenu.x }} onClick={e => e.stopPropagation()} onContextMenu={e=>e.preventDefault()}>
-                  <div className="cm-reactions">{EMOJIS.map(em => <span key={em} className="cm-reaction" onClick={() => handleReaction(em)}>{em}</span>)}</div>
+                <div className="context-overlay" onClick={() => setContextMenu(null)}></div>
+                <div className="context-container" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                  <div className="cm-reactions">
+                    {EMOJIS.map(emoji => (
+                      <span key={emoji} className="cm-reaction" onClick={() => handleReaction(emoji)}>{emoji}</span>
+                    ))}
+                  </div>
                   <div className="context-menu">
-                    <div className="cm-item" onClick={() => executeAction('reply')}><span>Reply</span><IconReply/></div>
-                    <div className="cm-item" onClick={() => executeAction('copy')}><span>Copy</span><IconCopy/></div>
-                    {canEditDelete && <div className="cm-item" onClick={() => executeAction('edit')}><span>Edit</span><IconEdit/></div>}
-                    <div className="cm-item" onClick={() => executeAction('forward')}><span>Forward</span><IconForward/></div>
-                    <div className="cm-item" onClick={() => executeAction('pin')}><span>{contextMenu.msg.isPinned ? 'Unpin' : 'Pin'}</span><IconPin/></div>
-                    {canEditDelete && <div className="cm-item danger" onClick={() => executeAction('delete')}><span>Delete</span><IconTrash/></div>}
-                    <div className="cm-item" onClick={() => executeAction('info')}><span>Message Info</span><IconInfo/></div>
+                    <div className="cm-item" onClick={() => executeAction('reply')}><IconReply/> Reply</div>
+                    <div className="cm-item" onClick={() => executeAction('copy')}><IconCopy/> Copy Text</div>
+                    <div className="cm-item" onClick={() => executeAction('forward')}><IconForward/> Forward</div>
+                    <div className="cm-item" onClick={() => executeAction('pin')}><IconPin/> {contextMenu.msg.isPinned ? 'Unpin' : 'Pin'}</div>
+                    <div className="cm-item" onClick={() => executeAction('info')}><IconInfo/> Info</div>
+                    {(contextMenu.msg.userId === user.id || user.role === 'admin' || user.role === 'owner') && (
+                      <div className="cm-item" onClick={() => executeAction('edit')}><IconEdit/> Edit</div>
+                    )}
+                    {(contextMenu.msg.userId === user.id || user.role === 'admin' || user.role === 'owner') && (
+                      <div className="cm-item danger" onClick={() => executeAction('delete')}><IconTrash/> Delete</div>
+                    )}
                   </div>
                 </div>
               </>
-              );
-            })()}
+            )}
 
             {infoModal && (
               <div className="info-modal-overlay" onClick={() => setInfoModal(null)}>
                 <div className="info-modal" onClick={e => e.stopPropagation()}>
-                  <div className="info-header"><span style={{width:24}}></span><span className="info-title">Message Info</span><button className="icon-btn" style={{padding:0}} onClick={()=>setInfoModal(null)}><IconClose/></button></div>
+                  <div className="info-header">
+                    <span className="info-title">Message Info</span>
+                    <button className="icon-btn" style={{padding:4}} onClick={() => setInfoModal(null)}><IconClose/></button>
+                  </div>
                   <div className="info-body">
-                    {Object.entries(infoModal.reactions || {}).map(([em, users]) => 
-                      users.map(u => (
-                        <div key={em+u.id} className="info-row">
-                          <div className="info-avatar" style={{background: u.avatar ? 'transparent' : (u.id===user.id?'var(--text-blue)':'#10b981'), overflow: 'hidden'}}>
-                             {u.avatar ? <img src={getAvatarImg(u.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : u.nick.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="info-details"><div className="info-name">{u.id === user.id ? 'You' : u.nick}</div><div className="info-sub">reacted with {em}</div></div>
-                          <div className="info-right">{em}</div>
+                    <div className="info-row">
+                      <div className="info-avatar" style={{background: 'var(--text-blue)'}}><IconCheck color="#fff"/></div>
+                      <div className="info-details">
+                        <div className="info-name">Sent</div>
+                        <div className="info-sub">{new Date(infoModal.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</div>
+                      </div>
+                    </div>
+                    {(infoModal.seenBy || []).map((s, i) => (
+                      <div className="info-row" key={i}>
+                        <div className="info-avatar" style={{background: s.avatar && s.avatar.startsWith('http') ? 'transparent' : 'var(--text-blue)'}}>
+                          {s.avatar && s.avatar.startsWith('http') ? <img src={s.avatar} style={{width:'100%', height:'100%', objectFit:'cover'}}/> : s.nick.charAt(0).toUpperCase()}
                         </div>
-                      ))
-                    )}
-                    {(infoModal.seenBy || []).map(u => (
-                      <div key={'seen'+u.id} className="info-row">
-                        <div className="info-avatar" style={{background: u.avatar ? 'transparent' : 'var(--text-icon)', overflow: 'hidden'}}>
-                           {u.avatar ? <img src={getAvatarImg(u.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : u.nick.charAt(0).toUpperCase()}
+                        <div className="info-details">
+                          <div className="info-name">{s.nick}</div>
+                          <div className="info-sub">Read</div>
                         </div>
-                        <div className="info-details"><div className="info-name">{u.nick}</div><div className="info-sub">seen just now</div></div>
-                        <div className="info-right" style={{color:'var(--text-icon)'}}><IconDoubleCheck color="var(--text-icon)"/></div>
+                        <div className="info-right"><IconDoubleCheck color="var(--text-blue)" /></div>
                       </div>
                     ))}
                   </div>
@@ -2276,89 +2836,102 @@ export default function App() {
 
             {forwardModal && (
               <div className="info-modal-overlay" onClick={() => setForwardModal(null)}>
-                <div className="info-modal" onClick={e => e.stopPropagation()} style={{maxHeight: '80vh'}}>
+                <div className="info-modal" onClick={e => e.stopPropagation()}>
                   <div className="info-header">
-                    <span style={{width:24}}></span>
-                    <span className="info-title">Forward Message</span>
-                    <button className="icon-btn" style={{padding:0}} onClick={() => setForwardModal(null)}><IconClose/></button>
+                    <span className="info-title">Forward to...</span>
+                    <button className="icon-btn" style={{padding:4}} onClick={() => setForwardModal(null)}><IconClose/></button>
                   </div>
                   <div className="info-body">
                     {chatList.map(c => (
-                      <div key={'fwd'+c.id} className="info-row" style={{cursor: 'pointer'}} onClick={() => handleForwardTarget(c.id)}>
-                        <div className="info-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor, overflow: 'hidden'}}>
-                           {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
+                      <div className="info-row" key={c.id} style={{cursor:'pointer'}} onClick={() => handleForwardTarget(c.id)}>
+                        <div className="info-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
+                          {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}}/> : c.avatarText}
                         </div>
-                        <div className="info-details"><div className="info-name">{c.name}</div></div>
-                        <div className="info-right" style={{color: 'var(--text-icon)'}}><IconForward /></div>
+                        <div className="info-details">
+                          <div className="info-name">{c.name}</div>
+                        </div>
+                        <div className="info-right"><IconSend /></div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
             )}
+            
+            {viewProfileUser && (
+               <div className="upm-overlay" onClick={() => setViewProfileUser(null)}>
+                 <div className="upm-card" onClick={e => e.stopPropagation()}>
+                   <button className="upm-close" onClick={() => setViewProfileUser(null)}><IconClose/></button>
+                   {viewProfileUser.loading ? (
+                     <div style={{padding:'40px', display:'flex', justifyContent:'center'}}><div className="spinner"></div></div>
+                   ) : (
+                     <>
+                        <div className="upm-top">
+                           <div className="upm-avatar">
+                             {viewProfileUser.avatar ? <img src={getAvatarImg(viewProfileUser.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : viewProfileUser.name.charAt(0).toUpperCase()}
+                           </div>
+                           <h2 className="upm-name">
+                             {viewProfileUser.name}
+                             {viewProfileUser.role === 'owner' && '👑'}
+                             {viewProfileUser.role === 'admin' && '🛡️'}
+                           </h2>
+                           <p className="upm-status">
+                             {Date.now() - new Date(viewProfileUser.lastActive).getTime() < 60000 
+                               ? <span style={{color: '#53bdeb'}}>online</span> 
+                               : `last seen at ${new Date(viewProfileUser.lastActive).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`}
+                           </p>
+                           <div className="upm-actions">
+                             <button className="upm-btn" onClick={() => { setActiveChatId(viewProfileUser.id); setViewProfileUser(null); }}>
+                               <IconMessageSquare/> <span>Message</span>
+                             </button>
+                             <button className="upm-btn" onClick={() => toggleMute(viewProfileUser.id)}>
+                               {mutedUsers.includes(viewProfileUser.id) ? <IconBell/> : <IconBellOff/>} 
+                               <span>{mutedUsers.includes(viewProfileUser.id) ? 'Unmute' : 'Mute'}</span>
+                             </button>
+                           </div>
+                        </div>
+                        <div className="upm-bottom">
+                           <div className="upm-info-item">
+                             <p className="upm-info-val">{viewProfileUser.bio || 'Web Developer ⚡'}</p>
+                             <p className="upm-info-lbl">Bio</p>
+                           </div>
+                           {viewProfileUser.username && (
+                               <div className="upm-info-item">
+                                 <p className="upm-info-val" style={{color: '#53bdeb'}}>@{viewProfileUser.username}</p>
+                                 <p className="upm-info-lbl">Username</p>
+                               </div>
+                           )}
+                        </div>
+                     </>
+                   )}
+                 </div>
+               </div>
+            )}
 
-            {viewProfileUser && (() => {
-              const liveProfile = systemUsers.find(u => u.id === viewProfileUser.id) || viewProfileUser;
-              
-              const renderBadgeBig = (u) => {
-                if (u.badgeIcon === 'star') return <span style={{color:'#f59e0b', marginLeft:'4px'}}><IconStar/></span>;
-                if (u.badgeIcon === 'diamond') return <span style={{color:'#3b82f6', marginLeft:'4px'}}><IconDiamond/></span>;
-                if (u.badgeIcon === 'fire') return <span style={{color:'#ef4444', marginLeft:'4px'}}><IconFire/></span>;
-                if (u.badgeIcon === 'shield') return <span style={{color:'#10b981', marginLeft:'4px'}}><IconShield/></span>;
-                return null;
-              };
-
-              return (
-              <div className="upm-overlay" onClick={() => setViewProfileUser(null)}>
-                <div className="upm-card" onClick={e => e.stopPropagation()}>
-                  <button className="upm-close" onClick={() => setViewProfileUser(null)}><IconClose /></button>
-                  <div className="upm-top">
-                     <div className="upm-avatar" style={{background: (liveProfile.avatar || liveProfile.avatarType) ? 'transparent' : liveProfile.avatarColor}}>
-                       {(liveProfile.avatar || liveProfile.avatarType) ? <img src={getAvatarImg(liveProfile.avatar || liveProfile.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : liveProfile.name.substring(0,2).toUpperCase()}
-                     </div>
-                     <h3 className="upm-name">
-                        {liveProfile.nickname || liveProfile.name}
-                        {liveProfile.role === 'owner' && <span title="Owner" style={{marginLeft:'4px'}}>👑</span>}
-                        {liveProfile.role === 'admin' && <span title="Admin" style={{marginLeft:'4px'}}>🛡️</span>}
-                        {renderBadgeBig(liveProfile)}
-                     </h3>
-                     
-                     {liveProfile.customTitle && (
-                       <div style={{marginBottom:'12px', fontSize:'13px', fontWeight:'bold', color: liveProfile.titleColor || '#007aff', border:`1px solid ${liveProfile.titleColor || '#007aff'}`, padding:'2px 8px', borderRadius:'12px'}} className={liveProfile.titleEffect ? `title-effect-${liveProfile.titleEffect}` : ''}>
-                         {liveProfile.customTitle}
-                       </div>
-                     )}
-
-                     <p className="upm-status">
-                       {Date.now() - new Date(liveProfile.lastActive || viewProfileUser.lastActive).getTime() < 60000 
-                         ? <span style={{color: '#53bdeb'}}>online</span> 
-                         : `last seen at ${new Date(liveProfile.lastActive || viewProfileUser.lastActive).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`}
-                     </p>
-                     <div className="upm-actions">
-                       <button className="upm-btn" onClick={() => { setActiveChatId(viewProfileUser.id); setViewProfileUser(null); }}>
-                         <IconMessageSquare/> <span>Message</span>
-                       </button>
-                       <button className="upm-btn" onClick={() => toggleMute(viewProfileUser.id)}>
-                         {mutedUsers.includes(viewProfileUser.id) ? <IconBell/> : <IconBellOff/>} 
-                         <span>{mutedUsers.includes(viewProfileUser.id) ? 'Unmute' : 'Mute'}</span>
-                       </button>
-                     </div>
-                  </div>
-                  <div className="upm-bottom">
-                     <div className="upm-info-item">
-                       <p className="upm-info-val">{liveProfile.bio || 'Web Developer ⚡'}</p>
-                       <p className="upm-info-lbl">Bio</p>
-                     </div>
-                     {(liveProfile.username || viewProfileUser.username) && (
-                         <div className="upm-info-item">
-                           <p className="upm-info-val" style={{color: '#53bdeb'}}>@{liveProfile.username || viewProfileUser.username}</p>
-                           <p className="upm-info-lbl">Username</p>
-                         </div>
-                     )}
-                  </div>
+            {/* Chat Switcher Overlay */}
+            {showSwitcher && chatList.length > 0 && (
+              <div className="chat-switcher-overlay">
+                <div className="chat-switcher-box">
+                  {chatList.map((c, idx) => (
+                    <div 
+                      key={'sw-'+c.id} 
+                      id={`sw-item-${idx}`}
+                      className={`switcher-item ${idx === switcherIndex ? 'active' : ''}`}
+                      onClick={() => {
+                        setActiveChatId(c.id);
+                        setShowSwitcher(false);
+                        isSwitcherOpenRef.current = false;
+                      }}
+                    >
+                      <div className="switcher-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
+                        {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
+                      </div>
+                      <span className="switcher-name">{c.name}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )})()}
+            )}
 
           </div>
         </div>
