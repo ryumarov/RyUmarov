@@ -319,14 +319,20 @@ const globalStyles = `
   .msg-row.me .msg-text { color: var(--msg-me-text); }
   
   /* Markdown & Code Highlights */
-  .md-code-block { background: #1e293b; border-radius: 8px; margin: 8px 0; overflow: hidden; font-family: monospace; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); cursor: text; }
-  .md-code-header { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 4px 12px; user-select: none; }
-  .md-code-lang { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 11px; }
-  .md-copy-btn { background: rgba(255,255,255,0.1); color: #e2e8f0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 0.2s; font-weight: bold; }
-  .md-copy-btn:hover { background: rgba(255,255,255,0.2); }
+  .md-code-block { background: #182533; border-radius: 8px; margin: 8px 0; overflow: hidden; font-family: 'Consolas', monospace; font-size: 13px; border: 1px solid rgba(255,255,255,0.05); }
+  body.dark .md-code-block { background: #0e1621; }
+  .md-code-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 4px 12px; user-select: none; }
+  .md-code-lang { color: #53bdeb; font-weight: 600; text-transform: lowercase; font-size: 12px; }
+  .md-copy-btn { background: transparent; color: #7f91a4; border: none; padding: 4px; font-size: 14px; cursor: pointer; transition: color 0.2s; display: flex; align-items: center; justify-content: center; }
+  .md-copy-btn:hover { color: #fff; }
   .md-code-pre { margin: 0; padding: 12px; overflow-x: auto; color: #e2e8f0; white-space: pre-wrap; word-break: break-word; text-align: left; }
   .md-inline-code { background: rgba(0,0,0,0.08); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #ef4444; }
   body.dark .md-inline-code { background: rgba(255,255,255,0.1); color: #fca5a5; }
+
+  /* Links & Previews */
+  .chat-link { color: var(--text-blue); text-decoration: underline; word-break: break-all; transition: opacity 0.2s; cursor: pointer; }
+  .chat-link:hover { opacity: 0.8; }
+  .msg-link-image { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; margin-bottom: 2px; display: block; border: 1px solid var(--border-color); object-fit: cover; }
 
   .msg-footer { position: absolute; bottom: 4px; right: 8px; display: flex; align-items: center; gap: 4px; background: inherit; padding-left: 4px; border-radius: 8px; }
   .msg-time { font-size: 11px; color: var(--msg-other-time); }
@@ -350,6 +356,16 @@ const globalStyles = `
   .chat-input-wrapper { flex: 1; display: flex; align-items: flex-end; background: var(--bg-input); border-radius: 24px; padding: 0 4px 0 16px; min-height: 44px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; border: 1px solid transparent; }
   .chat-input-wrapper.sending { transform: scale(0.97); opacity: 0.6; }
   .chat-input { flex: 1; padding: 12px 8px 12px 0; border: none; background: transparent; font-size: 16px; color: var(--text-main); outline: none; resize: none; max-height: 120px; font-family: inherit; line-height: 1.4; transition: opacity 0.2s; }
+  .chat-input:focus { outline: none; }
+  /* Prevent native mobile keyboard */
+  @media (max-width: 768px) {
+    input[inputmode="none"],
+    textarea[inputmode="none"] {
+      caret-color: var(--text-main);
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+    }
+  }
   .chat-input-wrapper.sending .chat-input { opacity: 0; }
   
   .send-btn-circle { width: 44px; height: 44px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.1s, background 0.2s; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
@@ -577,30 +593,201 @@ const globalStyles = `
   .custom-dialog-btn.cancel { background: var(--bg-input); color: var(--text-main); }
   .custom-dialog-btn.confirm { background: var(--text-blue); color: #fff; }
 
-  /* Virtual Keyboard Mobile */
-  .virtual-keyboard { position: fixed; bottom: 0; left: 0; right: 0; background: #d1d5db; padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); z-index: 9999999; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); user-select: none; touch-action: manipulation; }
-  body.dark .virtual-keyboard { background: #0f172a; border-top: 1px solid rgba(255,255,255,0.05); }
+  /* Virtual Keyboard Mobile - Professional & Optimized */
+  .virtual-keyboard { 
+    position: fixed; bottom: 0; left: 0; right: 0; 
+    background: linear-gradient(to top, #d1d5db 0%, #e5e7eb 100%);
+    padding: 10px 4px calc(12px + env(safe-area-inset-bottom)); 
+    z-index: 9999999; 
+    display: flex; flex-direction: column; gap: 6px; 
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.2);
+    transform: translateY(100%); 
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    user-select: none; 
+    touch-action: manipulation;
+    will-change: transform;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    pointer-events: auto;
+  }
+  body.dark .virtual-keyboard { 
+    background: linear-gradient(to top, #0f172a 0%, #1a2335 100%); 
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
   .virtual-keyboard.visible { transform: translateY(0); }
-  .vkb-row { display: flex; justify-content: center; gap: 6px; width: 100%; padding: 0 4px; }
-  .vkb-row.shifted { padding: 0 16px; }
-  .vkb-key { background: #fcfcfc; border: none; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); height: 46px; flex: 1; font-size: 22px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; text-transform: lowercase; transition: background 0.1s, transform 0.1s; padding: 0; }
-  body.dark .vkb-key { background: #334155; color: #f8fafc; box-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-  .vkb-key:active { background: #cbd5e1; transform: scale(0.95); }
-  body.dark .vkb-key:active { background: #475569; }
-  .vkb-key.special { background: #9ca3af; font-size: 16px; color: #000; }
-  body.dark .vkb-key.special { background: #1e293b; color: #fff; }
+  
+  /* Keyboard rows with proper width adaptation */
+  .vkb-keys { 
+    width: 100%; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px;
+    padding: 0 2px;
+  }
+  .vkb-row { 
+    display: flex; 
+    justify-content: center; 
+    gap: 4px; 
+    width: 100%; 
+    padding: 0 2px;
+  }
+  .vkb-row.shifted { padding: 0 8px; }
+  
+  /* Responsive key sizing */
+  .vkb-key { 
+    background: #f5f7fa; 
+    border: none; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5);
+    height: 44px; 
+    min-width: 30px;
+    flex: 1; 
+    font-size: clamp(16px, 3vw, 22px);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 500;
+    color: #1a1a1a; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-transform: lowercase; 
+    transition: background 0.08s ease-out, transform 0.08s ease-out, box-shadow 0.08s ease-out;
+    padding: 0;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    position: relative;
+  }
+  body.dark .vkb-key { 
+    background: #334155;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    color: #f1f5f9;
+  }
+  .vkb-key:active { 
+    background: #cbd5e1; 
+    transform: scale(0.92) translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  body.dark .vkb-key:active { 
+    background: #475569;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  
+  /* Special keys (Shift, Backspace, Enter) */
+  .vkb-key.special { 
+    background: #9ca3af;
+    font-size: clamp(14px, 2.5vw, 16px);
+    color: #000;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  body.dark .vkb-key.special { 
+    background: #1e293b; 
+    color: #f1f5f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .vkb-key.special:active {
+    background: #8b8f99;
+  }
+  body.dark .vkb-key.special:active {
+    background: #334155;
+  }
   .vkb-key.uppercase { text-transform: uppercase; }
-  .vkb-bottom { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 0; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 4px; }
-  body.dark .vkb-bottom { border-top-color: rgba(255,255,255,0.1); }
-  .vkb-icon-btn { background: none; border: none; padding: 8px; cursor: pointer; color: #4b5563; transition: color 0.2s; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-  .vkb-icon-btn:active { opacity: 0.6; }
+  
+  /* Bottom row with icons */
+  .vkb-bottom { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 6px 8px 4px 8px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    margin-top: 2px;
+    gap: 4px;
+    min-height: 44px;
+  }
+  body.dark .vkb-bottom { border-top-color: rgba(255,255,255,0.08); }
+  
+  .vkb-icon-btn { 
+    background: transparent; 
+    border: none; 
+    padding: 6px 8px;
+    cursor: pointer; 
+    color: #4b5563; 
+    transition: color 0.15s ease-out, background 0.15s ease-out;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 22px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 5px;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .vkb-icon-btn:active { 
+    opacity: 0.7;
+    background: rgba(0,0,0,0.08);
+  }
   body.dark .vkb-icon-btn { color: #94a3b8; }
-  .vkb-emoji-panel { height: 210px; overflow-y: auto; padding: 4px; touch-action: pan-y; }
-  .vkb-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
-  .vkb-emoji-btn { font-size: 28px; text-align: center; cursor: pointer; padding: 8px 0; border-radius: 8px; transition: background 0.2s; }
-  .vkb-emoji-btn:active { background: rgba(0,0,0,0.1); }
+  body.dark .vkb-icon-btn:active { background: rgba(255,255,255,0.08); }
+  
+  /* Emoji panel */
+  .vkb-emoji-panel { 
+    height: 200px; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch;
+    padding: 6px; 
+    touch-action: pan-y;
+    display: flex;
+    flex-direction: column;
+  }
+  .vkb-emoji-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 6px;
+    padding: 2px;
+  }
+  .vkb-emoji-btn { 
+    font-size: clamp(24px, 5vw, 28px);
+    text-align: center; 
+    cursor: pointer; 
+    padding: 6px 0; 
+    border-radius: 6px; 
+    transition: background 0.1s ease-out, transform 0.1s ease-out;
+    border: none;
+    background: transparent;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .vkb-emoji-btn:active { 
+    background: rgba(0,0,0,0.1);
+    transform: scale(0.9);
+  }
   body.dark .vkb-emoji-btn:active { background: rgba(255,255,255,0.1); }
+  
+  /* Scrollbar styling */
+  .vkb-emoji-panel::-webkit-scrollbar { width: 4px; }
+  .vkb-emoji-panel::-webkit-scrollbar-thumb { 
+    background: rgba(0,0,0,0.3); 
+    border-radius: 2px;
+  }
+  body.dark .vkb-emoji-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .virtual-keyboard { padding: 8px 2px calc(10px + env(safe-area-inset-bottom)); gap: 4px; }
+    .vkb-key { height: 40px; font-size: 18px; }
+    .vkb-row { gap: 3px; }
+    .vkb-bottom { min-height: 40px; padding: 4px 6px 2px 6px; }
+  }
   @media (max-width: 768px) { .desktop-only-btn { display: none !important; } }
+  @media (min-width: 481px) and (max-width: 768px) {
+    .virtual-keyboard { padding: 10px 4px calc(12px + env(safe-area-inset-bottom)); }
+    .vkb-key { height: 44px; font-size: 20px; }
+  }
 `;
 
 const audioCache = {};
@@ -693,6 +880,17 @@ const AudioBubble = ({ audioId, isMe }) => {
   );
 };
 
+const syntaxHighlight = (code) => {
+  return code
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") // HTML belgilar
+    .replace(/(\/\/.*?$)/gm, '<span style="color: #7f91a4; font-style: italic;">$1</span>') // Kommentlar
+    .replace(/(['"`].*?['"`])/g, '<span style="color: #a5d6ff;">$1</span>') // Stringlar
+    .replace(/\b(const|let|var|function|return|if|else|for|while|import|from|export|default|class|extends|new|this|await|async|try|catch|true|false|null|undefined)\b/g, '<span style="color: #569cd6; font-weight: bold;">$1</span>') // Keywordlar
+    .replace(/\b(useState|useEffect|useRef|useMemo|useCallback)\b/g, '<span style="color: #c678dd;">$1</span>') // React Hooklari
+    .replace(/(\b[a-zA-Z_]\w*)(?=\s*\()/g, '<span style="color: #61afef;">$1</span>') // Funksiyalar
+    .replace(/\b([0-9]+)\b/g, '<span style="color: #d19a66;">$1</span>'); // Raqamlar
+};
+
 const MessageFormatter = ({ text }) => {
   if (!text) return null;
 
@@ -712,6 +910,29 @@ const MessageFormatter = ({ text }) => {
     parts.push({ type: 'text', content: text.substring(lastIdx) });
   }
 
+  const parseLinks = (str) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const chunks = str.split(urlRegex);
+    return chunks.map((chunk, i) => {
+      if (i % 2 === 1) {
+        const isImage = /\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i.test(chunk);
+        if (isImage) {
+          return (
+            <a key={i} href={chunk} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+              <img src={chunk} alt="preview" className="msg-link-image" />
+            </a>
+          );
+        }
+        return (
+          <a key={i} href={chunk} target="_blank" rel="noopener noreferrer" className="chat-link" onClick={e => e.stopPropagation()}>
+            {chunk}
+          </a>
+        );
+      }
+      return chunk;
+    });
+  };
+
   return (
     <div className="msg-text">
       {parts.map((part, idx) => {
@@ -724,11 +945,13 @@ const MessageFormatter = ({ text }) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(part.content);
                   const t = e.currentTarget;
-                  t.innerText = 'Copied!';
-                  setTimeout(() => t.innerText = 'Copy', 2000);
-                }}>Copy</button>
+                  t.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                  setTimeout(() => t.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>', 2000);
+                }}>
+                  <IconCopy width="14" height="14" />
+                </button>
               </div>
-              <pre className="md-code-pre"><code>{part.content}</code></pre>
+              <pre className="md-code-pre"><code dangerouslySetInnerHTML={{ __html: syntaxHighlight(part.content) }}></code></pre>
             </div>
           );
         }
@@ -741,7 +964,7 @@ const MessageFormatter = ({ text }) => {
               const boldParts = sub.split(/\*\*([^*]+)\*\*/g);
               return (
                 <span key={j}>
-                  {boldParts.map((bp, k) => k % 2 === 1 ? <strong key={k}>{bp}</strong> : bp)}
+                  {boldParts.map((bp, k) => k % 2 === 1 ? <strong key={k}>{parseLinks(bp)}</strong> : parseLinks(bp))}
                 </span>
               );
             })}
@@ -751,8 +974,6 @@ const MessageFormatter = ({ text }) => {
     </div>
   );
 };
-
-// Global xavfsizlik skripti olib tashlandi va pastdagi useEffect ichiga aqlli tarzda ko'chirildi
 
 const getDeviceInfo = () => {
   const ua = navigator.userAgent;
@@ -789,25 +1010,21 @@ const getVisitorData = async () => {
     }
   };
 
-  // 1-urinish: ipwho.is (limitlari ancha yaxshi va barqaror)
   try { 
     const data = await fetchWithTimeout('https://ipwho.is/');
     if (data && data.success) return { ip: data.ip || '-', city: data.city || '-', country: data.country || '-', isp: data.connection?.isp || data.connection?.org || '-' };
   } catch (e) {}
 
-  // 2-urinish: ipapi.co (zaxira varianti)
   try { 
     const data = await fetchWithTimeout('https://ipapi.co/json/');
     if (data && data.ip && !data.error) return { ip: data.ip || '-', city: data.city || '-', country: data.country_name || '-', isp: data.org || '-' };
   } catch (e) {}
   
-  // 3-urinish: ipinfo.io (oxirgi zaxira varianti)
   try {
     const data = await fetchWithTimeout('https://ipinfo.io/json');
     if (data && data.ip) return { ip: data.ip || '-', city: data.city || '-', country: data.country || '-', isp: data.org || '-' };
   } catch(e) {}
 
-  // Hech biri ishlamasa (Adblocker yoki juda yomon ulanish)
   return { ip: `unknown_${Math.floor(Math.random() * 100000)}`, city: '-', country: '-', isp: '-' };
 };
 
@@ -1401,88 +1618,135 @@ export default function App() {
     };
   }, []);
 
-  // Global Input ushlagich va Custom Klaviatura aktivatori
+  // Global Input ushlagich va Custom Klaviatura aktivatori - Optimized
   useEffect(() => {
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
     if (!isMobile) return;
 
     const handleFocus = (e) => {
        const tag = e.target.tagName;
        if (tag === 'INPUT' || tag === 'TEXTAREA') {
-          if (e.target.type !== 'color' && e.target.type !== 'range') {
-             e.target.setAttribute('inputmode', 'none'); 
+          if (e.target.type !== 'color' && e.target.type !== 'range' && e.target.type !== 'date' && e.target.type !== 'time') {
+             // Prevent native keyboard with multiple methods
+             e.target.setAttribute('inputmode', 'none');
+             e.target.style.textSizeAdjust = 'none'; // Prevent zoom
+             e.target.blur();
+             
+             // Set as VKB target
              setVkbTarget(e.target);
              setVkbVisible(true);
              if (vkbLayout !== 'emoji') setVkbLayout('alpha');
              
+             // Re-focus with caret positioning
              setTimeout(() => {
+               e.target.focus({ preventScroll: false });
                e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-             }, 150);
+             }, 50);
           }
        }
     };
 
     const handleClick = (e) => {
-       if (!e.target.closest('.virtual-keyboard') && !e.target.closest('input') && !e.target.closest('textarea')) {
+       const isKeyboard = e.target.closest('.virtual-keyboard');
+       const isInput = e.target.closest('input');
+       const isTextarea = e.target.closest('textarea');
+       
+       if (!isKeyboard && !isInput && !isTextarea) {
           setVkbVisible(false);
-          setVkbTarget(null);
+          if (vkbTarget) {
+             vkbTarget.blur();
+             setVkbTarget(null);
+          }
        }
     };
 
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('click', handleClick);
+    const handleTouchMove = (e) => {
+       // Prevent scrolling when keyboard is open
+       if (vkbVisible && e.target.closest('.virtual-keyboard')) {
+          e.preventDefault();
+       }
+    };
+
+    document.addEventListener('focusin', handleFocus, { passive: false, capture: true });
+    document.addEventListener('click', handleClick, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
-       document.removeEventListener('focusin', handleFocus);
+       document.removeEventListener('focusin', handleFocus, true);
        document.removeEventListener('click', handleClick);
+       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [vkbVisible, vkbLayout, vkbTarget]);
 
   const handleVkbKey = (key) => {
     if (!vkbTarget) return;
 
-    let val = vkbTarget.value;
-    let start = vkbTarget.selectionStart;
-    let end = vkbTarget.selectionEnd;
+    const tag = vkbTarget.tagName;
+    let val = vkbTarget.value || '';
+    let start = vkbTarget.selectionStart || 0;
+    let end = vkbTarget.selectionEnd || 0;
 
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set ||
-                   Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set ||
-                   Object.getOwnPropertyDescriptor(Object.getPrototypeOf(vkbTarget), 'value')?.set;
+    // Get the setter descriptor for the value property (works for both input and textarea)
+    const descriptor = Object.getOwnPropertyDescriptor(tag === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value');
+    const setter = descriptor?.set;
 
     if (key === 'BACKSPACE') {
+      // Delete selected text or one character before cursor
       if (start === end && start > 0) {
         val = val.substring(0, start - 1) + val.substring(end);
-        start--;
-      } else {
+        start = end = start - 1;
+      } else if (start !== end) {
         val = val.substring(0, start) + val.substring(end);
+        end = start;
       }
     } else if (key === 'ENTER') {
-      if (vkbTarget.tagName === 'TEXTAREA') {
-        if (vkbTarget.classList.contains('chat-input')) {
-           const form = vkbTarget.closest('form');
-           if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-           return;
-        }
+      if (tag === 'TEXTAREA' && !vkbTarget.classList.contains('chat-input')) {
+        // Allow newline in textarea
         val = val.substring(0, start) + '\n' + val.substring(end);
-        start++;
+        start = end = start + 1;
       } else {
+        // Submit form or trigger enter on input
         const form = vkbTarget.closest('form');
-        if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-        else vkbTarget.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        if (form) {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        } else {
+          vkbTarget.dispatchEvent(new KeyboardEvent('keydown', { 
+            key: 'Enter', 
+            code: 'Enter',
+            bubbles: true,
+            cancelable: true 
+          }));
+        }
         setVkbVisible(false);
         vkbTarget.blur();
         return;
       }
     } else {
+      // Insert character at cursor position
       val = val.substring(0, start) + key + val.substring(end);
-      start += key.length;
+      start = end = start + key.length;
     }
 
-    if (setter) setter.call(vkbTarget, val);
-    vkbTarget.dispatchEvent(new Event('input', { bubbles: true }));
-    setTimeout(() => vkbTarget.setSelectionRange(start, start), 0);
+    // Update the value using the setter (avoids DOM pollution)
+    if (setter) {
+      setter.call(vkbTarget, val);
+    } else {
+      vkbTarget.value = val;
+    }
 
-    if (vkbShift && key !== 'BACKSPACE' && key !== 'ENTER') setVkbShift(false);
+    // Dispatch input event to trigger React state updates
+    vkbTarget.dispatchEvent(new Event('input', { bubbles: true }));
+    vkbTarget.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Set selection range after next frame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      vkbTarget.setSelectionRange(start, start);
+    });
+
+    // Auto-deactivate shift after typing (unless it was a special key)
+    if (vkbShift && key !== 'BACKSPACE' && key !== 'ENTER' && key.length === 1) {
+      setVkbShift(false);
+    }
   };
 
   const handleCloseSettings = () => {
@@ -1568,9 +1832,8 @@ export default function App() {
     if (user.role !== 'owner') {
       devtoolsInterval = setInterval(() => {
         const start = Date.now();
-        debugger; // Agar console ochiq bo'lsa browser shu yerda qotadi
+        debugger; 
         if (Date.now() - start > 500) {
-          // DevTools ochiqligi sezilsa butun DOM va source larni tozalash (invasible)
           document.documentElement.innerHTML = '<body style="background:#000; color:#f00; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:monospace; font-size:2rem; text-align:center;">XAVFSIZLIK TIZIMI:<br/>DEVTOOLS TAQIQLANGAN!</body>';
         }
       }, 100);
@@ -1833,7 +2096,7 @@ export default function App() {
     const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current;
     isUserScrolling.current = scrollHeight - scrollTop - clientHeight > 50; 
     
-    // Virtual Scrolling: Tepa qismga yaqinlashganda ko'proq xabarlarni yuklash
+    // Virtual Scrolling
     if (scrollTop < 300) {
       setRenderLimit(prev => prev + 100);
     }
@@ -2410,7 +2673,9 @@ export default function App() {
   const getPId = (id1, id2) => [id1, id2].sort().join('_');
   
   const globalMsgs = messages.filter(m => !m.isSystem && (!m.chatId || m.chatId === 'global'));
-  const chatList = [
+  
+  // Barcha chatlar ro'yxatini alohida saqlab olamiz (qidiruv buzib qoymasligi uchun)
+  const allChats = [
     {
       id: 'global', name: 'Global Chat', isGroup: true, avatarColor: 'var(--text-blue)', avatarText: 'GC', members: `${usersList.length + 1} members`,
       lastMsgObj: globalMsgs[globalMsgs.length - 1],
@@ -2422,21 +2687,25 @@ export default function App() {
       const pMsgs = messages.filter(m => !m.isSystem && m.chatId === getPId(user.id, u.id));
       const liveU = systemUsers.find(su => su.id === u.id) || u;
       return {
-        id: u.id, name: liveU.nickname || u.name, isGroup: false, avatarColor: u.avatarColor, avatarText: u.name.substring(0,2).toUpperCase(), members: `last seen ${new Date(u.lastActive).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`,
+        id: u.id, name: liveU.nickname || u.name, isGroup: false, avatarColor: u.avatarColor, avatarText: (u.name || 'U').substring(0,2).toUpperCase(), members: `last seen ${new Date(u.lastActive).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`,
         lastMsgObj: pMsgs[pMsgs.length - 1],
         unread: pMsgs.filter(m => m.userId !== user.id && !(m.seenBy||[]).some(s=>s.id===user.id)).length,
         avatarType: liveU.avatar || u.avatar,
         role: liveU.role
       };
     })
-  ].filter(c => c.name.toLowerCase().includes(search.toLowerCase())).sort((a,b) => {
+  ];
+
+  // Qidiruv faqat chap panel uchun chatList ni filtrlaydi
+  const chatList = allChats.filter(c => (c.name || '').toLowerCase().includes(search.toLowerCase())).sort((a,b) => {
     if(a.id === 'global') return -1; if(b.id === 'global') return 1;
     const tA = a.lastMsgObj ? new Date(a.lastMsgObj.timestamp).getTime() : 0;
     const tB = b.lastMsgObj ? new Date(b.lastMsgObj.timestamp).getTime() : 0;
     return tB - tA;
   });
 
-  const activeChatDetails = chatList.find(c => c.id === activeChatId) || chatList[0];
+  // O'ng paneldagi ma'lumot qidiruvdan qatiy nazar allChats'dan olinadi (Crash bo'lmaydi!)
+  const activeChatDetails = allChats.find(c => c.id === activeChatId) || allChats[0];
   
   chatListRef.current = chatList;
   activeChatIdRef.current = activeChatId;
@@ -2751,7 +3020,11 @@ export default function App() {
               )}
 
               <div className="chat-list">
-                {chatList.map(c => {
+                {chatList.length === 0 ? (
+                   <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px', marginTop: '20px'}}>
+                     Hech narsa topilmadi...
+                   </div>
+                ) : chatList.map(c => {
                   const hasDraft = c.id !== 'global' && c.id === activeChatId && input.length > 0;
                   const typists = typingUsers.filter(u => u.chatId === c.id && u.id !== user.id && Date.now() - u.time < 1000);
                   const isTyping = typists.length > 0;
@@ -2998,7 +3271,7 @@ export default function App() {
                 </>
               )}
             </div>
-            
+
             {showEmojiPanel && (
               <div className="emoji-panel-container" onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
                 <div className="emoji-panel-title">Smileys</div>
@@ -3177,15 +3450,29 @@ export default function App() {
       )}
       {route === 'admin' && <AdminPanel onClose={() => setRoute('chat')} currentUser={user} showToast={showToast} customConfirm={customConfirm} />}
       
-      {/* VIRTUAL KEYBOARD FOR MOBILE */}
-      <div className={`virtual-keyboard ${vkbVisible ? 'visible' : ''}`}>
+      {/* VIRTUAL KEYBOARD FOR MOBILE - Professional & Optimized */}
+      <div className={`virtual-keyboard ${vkbVisible ? 'visible' : ''}`} style={{pointerEvents: vkbVisible ? 'auto' : 'none'}}>
          {vkbLayout === 'emoji' ? (
             <div className="vkb-emoji-panel">
                <div className="vkb-emoji-grid">
                   {[...EMOJIS, ...AURA_EMOJIS].map(emoji => (
-                     <div key={emoji} className="vkb-emoji-btn" onPointerDown={(e) => { e.preventDefault(); handleVkbKey(emoji); }}>
+                     <button
+                        key={emoji}
+                        type="button"
+                        className="vkb-emoji-btn"
+                        onPointerDown={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           handleVkbKey(emoji);
+                        }}
+                        onTouchStart={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           handleVkbKey(emoji);
+                        }}
+                     >
                         {emoji}
-                     </div>
+                     </button>
                   ))}
                </div>
             </div>
@@ -3199,45 +3486,105 @@ export default function App() {
                  ['1','2','3','4','5','6','7','8','9','0'],
                  ['-','/',':',';','(',')','$','&','@','"'],
                  ['#+=', '.', ',', '?', '!', '\'', 'Backspace']
-               ]).map((row, i) => (
-                  <div key={i} className={`vkb-row ${i === 1 ? 'shifted' : ''}`}>
-                     {row.map(k => {
+               ]).map((row, rowIdx) => (
+                  <div key={rowIdx} className={`vkb-row ${rowIdx === 1 ? 'shifted' : ''}`}>
+                     {row.map((k) => {
                         let display = k;
                         let isSpecial = false;
-                        if (k === 'Shift') { display = vkbShift ? '⇪' : '⇧'; isSpecial = true; }
-                        else if (k === 'Backspace') { display = '⌫'; isSpecial = true; }
-                        else if (k === '#+=') { isSpecial = true; }
+                        
+                        if (k === 'Shift') { 
+                           display = vkbShift ? '⇪' : '⇧'; 
+                           isSpecial = true; 
+                        } else if (k === 'Backspace') { 
+                           display = '⌫'; 
+                           isSpecial = true; 
+                        } else if (k === '#+=') { 
+                           display = '#+=';
+                           isSpecial = true; 
+                        }
+                        
+                        const shouldUppercase = vkbShift && !isSpecial;
+                        const displayText = shouldUppercase ? k.toUpperCase() : display;
                         
                         return (
                            <button 
-                              key={k} 
-                              className={`vkb-key ${isSpecial ? 'special' : ''} ${vkbShift && !isSpecial ? 'uppercase' : ''}`}
+                              key={k + rowIdx} 
+                              type="button"
+                              className={`vkb-key ${isSpecial ? 'special' : ''} ${shouldUppercase ? 'uppercase' : ''}`}
                               onPointerDown={(e) => {
                                  e.preventDefault();
-                                 if (k === 'Shift') setVkbShift(!vkbShift);
-                                 else if (k === '#+=') setVkbLayout('alpha');
-                                 else handleVkbKey(vkbShift && !isSpecial ? k.toUpperCase() : k);
+                                 e.stopPropagation();
+                                 
+                                 if (k === 'Shift') {
+                                    setVkbShift(!vkbShift);
+                                 } else if (k === '#+=') {
+                                    setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha');
+                                 } else {
+                                    handleVkbKey(shouldUppercase ? k.toUpperCase() : k);
+                                 }
+                              }}
+                              onTouchStart={(e) => {
+                                 e.preventDefault();
+                                 e.stopPropagation();
+                                 
+                                 if (k === 'Shift') {
+                                    setVkbShift(!vkbShift);
+                                 } else if (k === '#+=') {
+                                    setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha');
+                                 } else {
+                                    handleVkbKey(shouldUppercase ? k.toUpperCase() : k);
+                                 }
                               }}
                            >
-                              {display}
+                              {displayText}
                            </button>
                         );
                      })}
                   </div>
                ))}
-               <div className="vkb-row">
-                  <button className="vkb-key special" style={{flex: 1.5}} onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}>
+               
+               {/* Bottom row with layout and space buttons */}
+               <div className="vkb-row" style={{gap: '4px', justifyContent: 'space-between'}}>
+                  <button 
+                     type="button"
+                     className="vkb-key special" 
+                     style={{flex: '0 0 auto', minWidth: '50px'}}
+                     onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
+                     onTouchStart={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
+                  >
                      {vkbLayout === 'alpha' ? '123' : 'ABC'}
                   </button>
-                  <button className="vkb-key" style={{flex: 4}} onPointerDown={(e) => { e.preventDefault(); handleVkbKey(' '); }}>bo'shliq</button>
-                  <button className="vkb-key special" style={{flex: 1.5, background: 'var(--text-blue)', color: '#fff'}} onPointerDown={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}>Bajarish</button>
+                  <button 
+                     type="button"
+                     className="vkb-key" 
+                     style={{flex: 1, minWidth: '50px'}}
+                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey(' '); }}
+                     onTouchStart={(e) => { e.preventDefault(); handleVkbKey(' '); }}
+                  >
+                     bo'shliq
+                  </button>
+                  <button 
+                     type="button"
+                     className="vkb-key special" 
+                     style={{flex: '0 0 auto', minWidth: '60px', background: 'var(--text-blue)', color: '#fff'}}
+                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}
+                     onTouchStart={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}
+                  >
+                     Bajarish
+                  </button>
                </div>
             </div>
          )}
 
+         {/* Keyboard footer with emoji and microphone */}
          <div className="vkb-bottom">
-            <button className="vkb-icon-btn" onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}>
-               {vkbLayout === 'emoji' ? <span style={{fontSize:16, fontWeight:600}}>ABC</span> : <IconSmile />}
+            <button 
+               type="button"
+               className="vkb-icon-btn"
+               onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
+               onTouchStart={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
+            >
+               {vkbLayout === 'emoji' ? <span style={{fontSize: '16px', fontWeight: 600}}>ABC</span> : <IconSmile />}
             </button>
             
             {isRecording ? (
@@ -3246,11 +3593,33 @@ export default function App() {
                     <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#fff'}}></div>
                     {recordingTime}s
                   </span>
-                  <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onPointerDown={(e) => { e.preventDefault(); cancelRecording(); }}><IconTrash/></button>
-                  <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onPointerDown={(e) => { e.preventDefault(); stopRecording(); }}><IconSend/></button>
+                  <button 
+                     type="button" 
+                     className="icon-btn" 
+                     style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
+                     onPointerDown={(e) => { e.preventDefault(); cancelRecording(); }}
+                     onTouchStart={(e) => { e.preventDefault(); cancelRecording(); }}
+                  >
+                     <IconTrash/>
+                  </button>
+                  <button 
+                     type="button" 
+                     className="icon-btn" 
+                     style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
+                     onPointerDown={(e) => { e.preventDefault(); stopRecording(); }}
+                     onTouchStart={(e) => { e.preventDefault(); stopRecording(); }}
+                  >
+                     <IconSend/>
+                  </button>
                </div>
             ) : (
-               <button className="vkb-icon-btn" style={{color: 'var(--text-blue)'}} onPointerDown={(e) => { e.preventDefault(); startRecording(); }}>
+               <button 
+                  type="button"
+                  className="vkb-icon-btn" 
+                  style={{color: 'var(--text-blue)'}}
+                  onPointerDown={(e) => { e.preventDefault(); startRecording(); }}
+                  onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
+               >
                   <IconMic />
                </button>
             )}
