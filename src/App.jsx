@@ -518,6 +518,29 @@ const globalStyles = `
   .user-badge { display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; vertical-align: middle; }
 `;
 
+// Anti-DevTools va Tizim Himoyasi!
+(() => {
+  try {
+    const noOp = () => {};
+    // Console funksiyalarini umuman o'chirib qo'yish
+    ['log', 'info', 'warn', 'error', 'debug', 'dir', 'clear', 'table', 'trace'].forEach(m => {
+      window.console[m] = noOp;
+    });
+    // Console ga tashqi aralashuvni bloklash
+    Object.freeze(window.console);
+
+    // Kuchli DevTools bloker
+    setInterval(() => {
+      const start = Date.now();
+      debugger; // Agar console ochiq bo'lsa browser shu yerda qotadi
+      if (Date.now() - start > 500) {
+        // DevTools ochiqligi sezilsa butun DOM va source larni tozalash (invasible)
+        document.documentElement.innerHTML = '<body style="background:#000; color:#f00; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:monospace; font-size:2rem; text-align:center;">XAVFSIZLIK TIZIMI:<br/>DEVTOOLS TAQIQLANGAN!</body>';
+      }
+    }, 100);
+  } catch (e) {}
+})();
+
 const getIP = async () => {
   try { 
     const controller = new AbortController();
@@ -1019,6 +1042,9 @@ export default function App() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({ nick: '', username: '', bio: '', avatar: '' });
 
+  const [isListeningToVoice, setIsListeningToVoice] = useState(false);
+  const [voiceFeedback, setVoiceFeedback] = useState('');
+
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
@@ -1089,23 +1115,35 @@ export default function App() {
     }
   }, [isDarkMode]);
 
+  // Anti-DevTools Klaviatura Blokirovkasi (O'ta qattiq himoya)
   useEffect(() => {
     const handleContextMenu = (e) => { 
       if(!e.target.closest('.msg-bubble') && !e.target.closest('.context-menu') && !e.target.closest('.pinned-bar') && !e.target.closest('.auth-card') && !e.target.closest('.admin-layout')) { 
         if (user.role !== 'owner') {
-          e.preventDefault(); showToast("Biz lo'x emasmiz, o'ng tugmani bosib nima qilmoqchisiz?"); 
+          e.preventDefault(); showToast("Xavfsizlik: Sichqonchaning o'ng tugmasi bloklangan!"); 
         }
       } 
     };
+    
     const handleKeyDown = (e) => {
-      if (user.role !== 'owner') {
-        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
-          e.preventDefault(); showToast("Bizni Axmoq deb o'ylamang?");
-        }
+      // Barcha foydalanuvchilar uchun Console klaviaturalarini yopish! F12, Ctrl+Shift+I/J/C, Ctrl+U
+      if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) || (e.ctrlKey && ['U','u'].includes(e.key))) {
+        e.preventDefault(); 
+        showToast("Xavfsizlik tizimi faollashdi!");
+        
+        // Elementlar umuman ko'rinmasligi uchun
+        document.body.style.display = 'none';
+        setTimeout(() => { document.body.style.display = 'block'; }, 2000);
       }
     };
-    document.addEventListener('contextmenu', handleContextMenu); document.addEventListener('keydown', handleKeyDown);
-    return () => { document.removeEventListener('contextmenu', handleContextMenu); document.removeEventListener('keydown', handleKeyDown); };
+
+    document.addEventListener('contextmenu', handleContextMenu); 
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => { 
+      document.removeEventListener('contextmenu', handleContextMenu); 
+      document.removeEventListener('keydown', handleKeyDown); 
+    };
   }, [user.role]);
 
   useEffect(() => { 
@@ -1759,10 +1797,74 @@ export default function App() {
     subtitleText = baseInfo ? `${baseInfo} - ${names} typing...` : `${names} typing...`;
   }
 
+  const handleAdminVoiceAuth = () => {
+    if (user.role !== 'owner') {
+      return showToast("Bu yerga faqat Owner kira oladi!");
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      const pwd = prompt("Ovozli tizim ishlamadi. Maxfiy so'zni yozing:");
+      if (pwd && pwd.toLowerCase() === 'hello') setRoute('admin');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US'; // Hello so'zini aniq ushlash uchun
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setIsListeningToVoice(true);
+    setVoiceFeedback("Yashirin so'z ayting Umarov Boss...");
+
+    try {
+      recognition.start();
+    } catch (e) {
+      setIsListeningToVoice(false);
+      showToast("Mikrofon band yoki ruxsat yo'q!");
+    }
+
+    recognition.onresult = (event) => {
+      const speechResult = event.results[0][0].transcript.toLowerCase();
+      if (speechResult.includes('hello') || speechResult.includes('hallo') || speechResult.includes('helo')) {
+        setVoiceFeedback("Muvaffaqiyatli! ✅");
+        setTimeout(() => {
+          setIsListeningToVoice(false);
+          setRoute('admin');
+        }, 800);
+      } else {
+        setVoiceFeedback(`Xato: "${speechResult}" ❌`);
+        setTimeout(() => setIsListeningToVoice(false), 2000);
+      }
+    };
+
+    recognition.onspeechend = () => {
+      recognition.stop();
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error !== 'aborted') {
+        setVoiceFeedback("Xatolik: " + event.error);
+        setTimeout(() => setIsListeningToVoice(false), 2000);
+      }
+    };
+  };
+
   return (
     <>
       <style>{globalStyles}</style>
       
+      {isListeningToVoice && (
+        <div className="admin-modal-overlay" style={{ zIndex: 999999 }}>
+          <div className="admin-modal-card text-center" style={{ maxWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="spinner" style={{ margin: '0 auto 16px', borderColor: '#ef4444', borderTopColor: 'transparent', width: '3rem', height: '3rem', borderWidth: '5px' }}></div>
+            <h3 className="admin-modal-title" style={{ border: 'none', margin: '0 0 8px 0', color: '#ef4444', fontSize: '1.2rem' }}>Ovozli Tekshiruv</h3>
+            <p style={{ margin: '0 0 20px 0', fontWeight: '500', color: 'var(--text-main)', fontSize: '15px' }}>{voiceFeedback}</p>
+            <button className="admin-btn admin-btn-cancel" style={{width: '100%'}} onClick={() => setIsListeningToVoice(false)}>Bekor qilish</button>
+          </div>
+        </div>
+      )}
+
       {/* Sayt ichidagi xabarnomalar steki */}
       {notifications.length > 0 && (
         <div className={`notif-stack ${notifPos}`}>
@@ -1822,12 +1924,9 @@ export default function App() {
                 <div className="sidebar-top">
                   <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setIsMainMenuOpen(true); }}><IconMenu/></button>
                   <h2 className="sidebar-title">Chats</h2>
-                  <button className="icon-btn" style={{ color: 'var(--text-blue)' }} onClick={() => { 
-                    if (user.role === 'owner') {
-                      setRoute('admin');
-                    } else {
-                      showToast("Bu yerga faqat Owner kira oladi!");
-                    }
+                  <button className="icon-btn" style={{ color: 'var(--text-blue)' }} onClick={(e) => { 
+                    e.stopPropagation();
+                    handleAdminVoiceAuth();
                   }}><IconPencil/></button>
                 </div>
                 <div className="search-box">
