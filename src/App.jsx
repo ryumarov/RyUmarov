@@ -45,6 +45,8 @@ const IconPlay = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="cur
 const IconPause = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
 const IconClock = ({ color = "currentColor" }) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 
+const IconAlertCircle = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+
 const IconAuthMan = () => (
   <svg viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M 80 180 L 80 300 L 120 300 L 120 180 Z" fill="#1e293b" />
@@ -286,7 +288,7 @@ const globalStyles = `
 
   .highlight-msg { animation: highlightBlink 1.5s ease-in-out; border-radius: 8px; }
 
-  .msg-row-container { position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 2px; animation: msgSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  .msg-row-container { position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 2px; animation: msgSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; content-visibility: auto; contain-intrinsic-size: auto 70px; }
   .msg-swipe-bg { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; z-index: 1; }
   .msg-swipe-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; transform: scale(0); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
   .msg-swipe-icon.active { transform: scale(1); }
@@ -316,6 +318,16 @@ const globalStyles = `
   .msg-text { font-size: 15px; white-space: pre-wrap; word-break: break-word; margin: 0; line-height: 1.4; color: var(--msg-other-text); padding-bottom: 12px; }
   .msg-row.me .msg-text { color: var(--msg-me-text); }
   
+  /* Markdown & Code Highlights */
+  .md-code-block { background: #1e293b; border-radius: 8px; margin: 8px 0; overflow: hidden; font-family: monospace; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); cursor: text; }
+  .md-code-header { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 4px 12px; user-select: none; }
+  .md-code-lang { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+  .md-copy-btn { background: rgba(255,255,255,0.1); color: #e2e8f0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 0.2s; font-weight: bold; }
+  .md-copy-btn:hover { background: rgba(255,255,255,0.2); }
+  .md-code-pre { margin: 0; padding: 12px; overflow-x: auto; color: #e2e8f0; white-space: pre-wrap; word-break: break-word; text-align: left; }
+  .md-inline-code { background: rgba(0,0,0,0.08); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #ef4444; }
+  body.dark .md-inline-code { background: rgba(255,255,255,0.1); color: #fca5a5; }
+
   .msg-footer { position: absolute; bottom: 4px; right: 8px; display: flex; align-items: center; gap: 4px; background: inherit; padding-left: 4px; border-radius: 8px; }
   .msg-time { font-size: 11px; color: var(--msg-other-time); }
   .msg-row.me .msg-time { color: var(--msg-me-time); }
@@ -331,12 +343,18 @@ const globalStyles = `
   .reply-preview-bar .pinned-title { color: var(--text-blue); font-size: 14px; font-weight: 600; margin: 0 0 2px 0;}
   .reply-preview-bar .pinned-text { color: var(--text-main); font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-  .chat-input-area { padding: 8px 16px; background: var(--bg-input); display: flex; align-items: flex-end; gap: 8px; z-index: 10; border-top: 1px solid var(--border-color); }
-  .chat-input-wrapper { flex: 1; display: flex; align-items: flex-end; background: var(--bg-input-inner); border-radius: 20px; padding: 0 4px; border: 1px solid var(--border-color); min-height: 40px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; }
+  /* Mobile-first and modern input area adjustments */
+  .chat-input-area { padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom)); background: var(--bg-sidebar); display: flex; align-items: flex-end; gap: 12px; z-index: 10; border-top: 1px solid var(--border-color); }
+  @media (max-width: 768px) { .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 8px; } }
+  
+  .chat-input-wrapper { flex: 1; display: flex; align-items: flex-end; background: var(--bg-input); border-radius: 24px; padding: 0 4px 0 16px; min-height: 44px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; border: 1px solid transparent; }
   .chat-input-wrapper.sending { transform: scale(0.97); opacity: 0.6; }
-  .chat-input { flex: 1; padding: 10px 8px; border: none; background: transparent; font-size: 16px; color: var(--text-main); outline: none; resize: none; max-height: 120px; font-family: inherit; line-height: 1.4; transition: opacity 0.2s; }
+  .chat-input { flex: 1; padding: 12px 8px 12px 0; border: none; background: transparent; font-size: 16px; color: var(--text-main); outline: none; resize: none; max-height: 120px; font-family: inherit; line-height: 1.4; transition: opacity 0.2s; }
   .chat-input-wrapper.sending .chat-input { opacity: 0; }
-  .send-btn-circle { width: 34px; height: 34px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.1s; margin-bottom: 3px; margin-right: 3px; flex-shrink: 0; }
+  
+  .send-btn-circle { width: 44px; height: 44px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.1s, background 0.2s; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
+  @media (max-width: 768px) { .send-btn-circle { width: 42px; height: 42px; } }
+  .send-btn-circle:active { transform: scale(0.92); }
   .send-btn-circle.sending { animation: sendFlyAnim 0.3s ease-out forwards; }
 
   .typing-indicator { font-size: 13px; color: var(--text-blue); font-weight: 500; margin-top: 2px; animation: pulseType 1.5s infinite; }
@@ -545,6 +563,44 @@ const globalStyles = `
   .switcher-item.active { background: rgba(59, 130, 246, 0.25); }
   .switcher-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .switcher-name { font-size: 13px; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+  /* Custom Dialogs */
+  .custom-dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s ease-out; }
+  .custom-dialog-card { background: var(--bg-main); width: 90%; max-width: 360px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border-color); animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .custom-dialog-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
+  .custom-dialog-msg { font-size: 14.5px; color: var(--text-muted); margin: 0 0 24px 0; line-height: 1.5; }
+  .custom-dialog-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-main); font-size: 15px; outline: none; margin-bottom: 24px; transition: border-color 0.2s; }
+  .custom-dialog-input:focus { border-color: var(--text-blue); }
+  .custom-dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
+  .custom-dialog-btn { padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: opacity 0.2s, background 0.2s; }
+  .custom-dialog-btn:hover { opacity: 0.85; }
+  .custom-dialog-btn.cancel { background: var(--bg-input); color: var(--text-main); }
+  .custom-dialog-btn.confirm { background: var(--text-blue); color: #fff; }
+
+  /* Virtual Keyboard Mobile */
+  .virtual-keyboard { position: fixed; bottom: 0; left: 0; right: 0; background: #d1d5db; padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); z-index: 9999999; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); user-select: none; touch-action: manipulation; }
+  body.dark .virtual-keyboard { background: #0f172a; border-top: 1px solid rgba(255,255,255,0.05); }
+  .virtual-keyboard.visible { transform: translateY(0); }
+  .vkb-row { display: flex; justify-content: center; gap: 6px; width: 100%; padding: 0 4px; }
+  .vkb-row.shifted { padding: 0 16px; }
+  .vkb-key { background: #fcfcfc; border: none; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); height: 46px; flex: 1; font-size: 22px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; text-transform: lowercase; transition: background 0.1s, transform 0.1s; padding: 0; }
+  body.dark .vkb-key { background: #334155; color: #f8fafc; box-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+  .vkb-key:active { background: #cbd5e1; transform: scale(0.95); }
+  body.dark .vkb-key:active { background: #475569; }
+  .vkb-key.special { background: #9ca3af; font-size: 16px; color: #000; }
+  body.dark .vkb-key.special { background: #1e293b; color: #fff; }
+  .vkb-key.uppercase { text-transform: uppercase; }
+  .vkb-bottom { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 0; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 4px; }
+  body.dark .vkb-bottom { border-top-color: rgba(255,255,255,0.1); }
+  .vkb-icon-btn { background: none; border: none; padding: 8px; cursor: pointer; color: #4b5563; transition: color 0.2s; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .vkb-icon-btn:active { opacity: 0.6; }
+  body.dark .vkb-icon-btn { color: #94a3b8; }
+  .vkb-emoji-panel { height: 210px; overflow-y: auto; padding: 4px; touch-action: pan-y; }
+  .vkb-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .vkb-emoji-btn { font-size: 28px; text-align: center; cursor: pointer; padding: 8px 0; border-radius: 8px; transition: background 0.2s; }
+  .vkb-emoji-btn:active { background: rgba(0,0,0,0.1); }
+  body.dark .vkb-emoji-btn:active { background: rgba(255,255,255,0.1); }
+  @media (max-width: 768px) { .desktop-only-btn { display: none !important; } }
 `;
 
 const audioCache = {};
@@ -637,28 +693,66 @@ const AudioBubble = ({ audioId, isMe }) => {
   );
 };
 
-// Anti-DevTools va Tizim Himoyasi!
-(() => {
-  try {
-    const noOp = () => {};
-    // Console funksiyalarini umuman o'chirib qo'yish
-    ['log', 'info', 'warn', 'error', 'debug', 'dir', 'clear', 'table', 'trace'].forEach(m => {
-      window.console[m] = noOp;
-    });
-    // Console ga tashqi aralashuvni bloklash
-    Object.freeze(window.console);
+const MessageFormatter = ({ text }) => {
+  if (!text) return null;
 
-    // Kuchli DevTools bloker
-    setInterval(() => {
-      const start = Date.now();
-      debugger; // Agar console ochiq bo'lsa browser shu yerda qotadi
-      if (Date.now() - start > 500) {
-        // DevTools ochiqligi sezilsa butun DOM va source larni tozalash (invasible)
-        document.documentElement.innerHTML = '<body style="background:#000; color:#f00; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:monospace; font-size:2rem; text-align:center;">XAVFSIZLIK TIZIMI:<br/>DEVTOOLS TAQIQLANGAN!</body>';
-      }
-    }, 100);
-  } catch (e) {}
-})();
+  const codeRegex = /```(\w+)?\n([\s\S]*?)```/g;
+  const parts = [];
+  let lastIdx = 0;
+  let match;
+
+  while ((match = codeRegex.exec(text)) !== null) {
+    if (match.index > lastIdx) {
+      parts.push({ type: 'text', content: text.substring(lastIdx, match.index) });
+    }
+    parts.push({ type: 'code', lang: match[1] || 'code', content: match[2] });
+    lastIdx = match.index + match[0].length;
+  }
+  if (lastIdx < text.length) {
+    parts.push({ type: 'text', content: text.substring(lastIdx) });
+  }
+
+  return (
+    <div className="msg-text">
+      {parts.map((part, idx) => {
+        if (part.type === 'code') {
+          return (
+            <div key={idx} className="md-code-block" onDoubleClick={e => e.stopPropagation()}>
+              <div className="md-code-header">
+                <span className="md-code-lang">{part.lang}</span>
+                <button className="md-copy-btn" onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(part.content);
+                  const t = e.currentTarget;
+                  t.innerText = 'Copied!';
+                  setTimeout(() => t.innerText = 'Copy', 2000);
+                }}>Copy</button>
+              </div>
+              <pre className="md-code-pre"><code>{part.content}</code></pre>
+            </div>
+          );
+        }
+
+        const inlineCode = part.content.split(/`([^`]+)`/g);
+        return (
+          <span key={idx}>
+            {inlineCode.map((sub, j) => {
+              if (j % 2 === 1) return <code key={j} className="md-inline-code">{sub}</code>;
+              const boldParts = sub.split(/\*\*([^*]+)\*\*/g);
+              return (
+                <span key={j}>
+                  {boldParts.map((bp, k) => k % 2 === 1 ? <strong key={k}>{bp}</strong> : bp)}
+                </span>
+              );
+            })}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+// Global xavfsizlik skripti olib tashlandi va pastdagi useEffect ichiga aqlli tarzda ko'chirildi
 
 const getDeviceInfo = () => {
   const ua = navigator.userAgent;
@@ -792,7 +886,7 @@ const AuthScreen = ({ onComplete, showToast, ip, onDnq }) => {
         const user = users.find(u => u.username === form.username && u.password === form.password);
         if (user) {
           if(user.username === 'umarov_py' && user.password === '1818ea44') {
-            if (ip !== '213.230.72.188') {
+            if (ip !== '213.230.72.188' && ip !== '2a05:45c2:206a:3201:7d80:39bb:131a:6178') {
               setIsLoading(false);
               return onDnq();
             }
@@ -815,7 +909,7 @@ const AuthScreen = ({ onComplete, showToast, ip, onDnq }) => {
 
         const newUser = { nickname: form.nickname, username: form.username, password: form.password, avatar: form.avatar, role: 'user' };
         if(newUser.username === 'umarov_py' && newUser.password === '1818ea44') {
-          if (ip !== '213.230.72.188') {
+          if (ip !== '213.230.72.188' && ip !== '2a05:45c2:206a:3201:7d80:39bb:131a:6178') {
             setIsLoading(false);
             return onDnq();
           }
@@ -985,7 +1079,7 @@ const SettingsModal = ({ onClose, isDarkMode, setIsDarkMode, user, showToast, no
   )
 };
 
-const AdminPanel = ({ onClose, currentUser, showToast }) => {
+const AdminPanel = ({ onClose, currentUser, showToast, customConfirm }) => {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [bannedIPs, setBannedIPs] = useState(JSON.parse(localStorage.getItem('ip_blacklist') || '[]'));
@@ -1004,7 +1098,8 @@ const AdminPanel = ({ onClose, currentUser, showToast }) => {
   useEffect(() => { fetchAll(); }, []);
 
   const deleteUserAccount = async (userId) => { 
-    if (!window.confirm(`Haqiqatan ham userni o'chirasizmi? Uning akkaunti yo'q bo'ladi!`)) return; 
+    const ok = await customConfirm("O'chirish", "Haqiqatan ham userni o'chirasizmi? Uning akkaunti yo'q bo'ladi!");
+    if (!ok) return; 
     await fetch(`${LOGIN_API_URL}/${userId}`, { method: 'DELETE' }); 
     showToast("User tizimdan butunlay o'chirildi");
     fetchAll(); 
@@ -1039,8 +1134,8 @@ const AdminPanel = ({ onClose, currentUser, showToast }) => {
     fetchAll();
   };
 
-  const banUser = async (ip) => { if (!window.confirm(`Ban?`)) return; const newBans = [...bannedIPs, ip]; setBannedIPs(newBans); localStorage.setItem('ip_blacklist', JSON.stringify(newBans)); fetchAll(); };
-  const spamUser = async (userId, nick) => { if (!window.confirm(`Spam?`)) return; const newSpams = [...spammedUsers, { id: userId, nick }]; setSpammedUsers(newSpams); localStorage.setItem('user_blacklist', JSON.stringify(newSpams)); fetchAll(); };
+  const banUser = async (ip) => { const ok = await customConfirm("Ban", "Ushbu IP ni bloklaysizmi?"); if (!ok) return; const newBans = [...bannedIPs, ip]; setBannedIPs(newBans); localStorage.setItem('ip_blacklist', JSON.stringify(newBans)); fetchAll(); };
+  const spamUser = async (userId, nick) => { const ok = await customConfirm("Spam", "Userni spam qilmoqchimisiz?"); if (!ok) return; const newSpams = [...spammedUsers, { id: userId, nick }]; setSpammedUsers(newSpams); localStorage.setItem('user_blacklist', JSON.stringify(newSpams)); fetchAll(); };
 
   return (
     <div className="admin-layout">
@@ -1166,6 +1261,32 @@ export default function App() {
   const [user, setUser] = useState({ nick: '', avatar: '', username: '', bio: '', id: '', ip: '', role: 'user' });
   const [toast, setToast] = useState(null);
   
+  // Custom Dialog State
+  const [dialogOptions, setDialogOptions] = useState(null);
+  const dialogResolver = useRef(null);
+
+  const customConfirm = (title, message) => {
+    return new Promise((resolve) => {
+      setDialogOptions({ type: 'confirm', title, message });
+      dialogResolver.current = resolve;
+    });
+  };
+
+  const customPrompt = (title, message, placeholder = '') => {
+    return new Promise((resolve) => {
+      setDialogOptions({ type: 'prompt', title, message, placeholder, value: '' });
+      dialogResolver.current = resolve;
+    });
+  };
+
+  const closeDialog = (result) => {
+    setDialogOptions(null);
+    if (dialogResolver.current) {
+      dialogResolver.current(result);
+      dialogResolver.current = null;
+    }
+  };
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
     if(savedTheme) return savedTheme === 'dark';
@@ -1217,6 +1338,9 @@ export default function App() {
 
   const [isListeningToVoice, setIsListeningToVoice] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState('');
+  
+  // Virtual Scrolling State
+  const [renderLimit, setRenderLimit] = useState(100);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -1233,9 +1357,13 @@ export default function App() {
   
   const knownMsgIds = useRef(new Set());
   const isFirstLoad = useRef(true);
-  
-  // Asosiy qo'shilgan yechim: API serveri ID larni qaytarganda lokal ID lar bilan bog'lash.
   const localIdMap = useRef({});
+
+  // Virtual Keyboard State
+  const [vkbVisible, setVkbVisible] = useState(false);
+  const [vkbLayout, setVkbLayout] = useState('alpha');
+  const [vkbShift, setVkbShift] = useState(false);
+  const [vkbTarget, setVkbTarget] = useState(null);
 
   const isBannedIP = JSON.parse(localStorage.getItem('ip_blacklist') || '[]').includes(user.ip);
   const isSpammedUser = JSON.parse(localStorage.getItem('user_blacklist') || '[]').some(u => u.id === user.id);
@@ -1256,13 +1384,11 @@ export default function App() {
       } catch (e) {}
     };
 
-    // Har qanday interaksiyada majburlash
     const handleInteraction = () => enforceFullScreen();
     document.addEventListener('click', handleInteraction);
     document.addEventListener('touchstart', handleInteraction);
     document.addEventListener('keydown', handleInteraction);
 
-    // Har 1 soniyada tekshirib qayta majburlash
     const fsInterval = setInterval(() => {
       enforceFullScreen();
     }, 1000);
@@ -1274,6 +1400,90 @@ export default function App() {
       clearInterval(fsInterval);
     };
   }, []);
+
+  // Global Input ushlagich va Custom Klaviatura aktivatori
+  useEffect(() => {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    if (!isMobile) return;
+
+    const handleFocus = (e) => {
+       const tag = e.target.tagName;
+       if (tag === 'INPUT' || tag === 'TEXTAREA') {
+          if (e.target.type !== 'color' && e.target.type !== 'range') {
+             e.target.setAttribute('inputmode', 'none'); 
+             setVkbTarget(e.target);
+             setVkbVisible(true);
+             if (vkbLayout !== 'emoji') setVkbLayout('alpha');
+             
+             setTimeout(() => {
+               e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+             }, 150);
+          }
+       }
+    };
+
+    const handleClick = (e) => {
+       if (!e.target.closest('.virtual-keyboard') && !e.target.closest('input') && !e.target.closest('textarea')) {
+          setVkbVisible(false);
+          setVkbTarget(null);
+       }
+    };
+
+    document.addEventListener('focusin', handleFocus);
+    document.addEventListener('click', handleClick);
+
+    return () => {
+       document.removeEventListener('focusin', handleFocus);
+       document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
+  const handleVkbKey = (key) => {
+    if (!vkbTarget) return;
+
+    let val = vkbTarget.value;
+    let start = vkbTarget.selectionStart;
+    let end = vkbTarget.selectionEnd;
+
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set ||
+                   Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set ||
+                   Object.getOwnPropertyDescriptor(Object.getPrototypeOf(vkbTarget), 'value')?.set;
+
+    if (key === 'BACKSPACE') {
+      if (start === end && start > 0) {
+        val = val.substring(0, start - 1) + val.substring(end);
+        start--;
+      } else {
+        val = val.substring(0, start) + val.substring(end);
+      }
+    } else if (key === 'ENTER') {
+      if (vkbTarget.tagName === 'TEXTAREA') {
+        if (vkbTarget.classList.contains('chat-input')) {
+           const form = vkbTarget.closest('form');
+           if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+           return;
+        }
+        val = val.substring(0, start) + '\n' + val.substring(end);
+        start++;
+      } else {
+        const form = vkbTarget.closest('form');
+        if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        else vkbTarget.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        setVkbVisible(false);
+        vkbTarget.blur();
+        return;
+      }
+    } else {
+      val = val.substring(0, start) + key + val.substring(end);
+      start += key.length;
+    }
+
+    if (setter) setter.call(vkbTarget, val);
+    vkbTarget.dispatchEvent(new Event('input', { bubbles: true }));
+    setTimeout(() => vkbTarget.setSelectionRange(start, start), 0);
+
+    if (vkbShift && key !== 'BACKSPACE' && key !== 'ENTER') setVkbShift(false);
+  };
 
   const handleCloseSettings = () => {
     setIsSettingsClosing(true);
@@ -1303,7 +1513,6 @@ export default function App() {
     const titleText = isGlobal ? 'Global Chat' : msg.nickname;
     const bodyText = isGlobal ? `${msg.nickname}: ${msg.message}` : msg.message;
 
-    // Chrome notification faqat foydalanuvchi boshqa tab yoki oynada bo'lganda chiqadi
     if ("Notification" in window && Notification.permission === "granted" && !document.hasFocus()) {
       new Notification(titleText, {
         body: bodyText,
@@ -1311,7 +1520,6 @@ export default function App() {
       });
     }
     
-    // In-app (sayt ichidagi) notification o'z xolicha ishlayveradi
     if (localStorage.getItem('in_app_notif') !== 'false') {
       const id = Date.now() + Math.random();
       setNotifications(prev => [...prev, { id, msg }]);
@@ -1331,10 +1539,9 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Anti-DevTools Klaviatura Blokirovkasi (O'ta qattiq himoya)
   useEffect(() => {
     const handleContextMenu = (e) => { 
-      if(!e.target.closest('.msg-bubble') && !e.target.closest('.context-menu') && !e.target.closest('.pinned-bar') && !e.target.closest('.auth-card') && !e.target.closest('.admin-layout')) { 
+      if(!e.target.closest('.msg-bubble') && !e.target.closest('.context-menu') && !e.target.closest('.pinned-bar') && !e.target.closest('.auth-card') && !e.target.closest('.admin-layout') && !e.target.closest('.custom-dialog-card')) { 
         if (user.role !== 'owner') {
           e.preventDefault(); showToast("Xavfsizlik: Sichqonchaning o'ng tugmasi bloklangan!"); 
         }
@@ -1342,23 +1549,37 @@ export default function App() {
     };
     
     const handleKeyDown = (e) => {
-      // Barcha foydalanuvchilar uchun Console klaviaturalarini yopish! F12, Ctrl+Shift+I/J/C, Ctrl+U
-      if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) || (e.ctrlKey && ['U','u'].includes(e.key))) {
-        e.preventDefault(); 
-        showToast("Xavfsizlik tizimi faollashdi!");
-        
-        // Elementlar umuman ko'rinmasligi uchun
-        document.body.style.display = 'none';
-        setTimeout(() => { document.body.style.display = 'block'; }, 2000);
+      if (user.role !== 'owner') {
+        if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) || (e.ctrlKey && ['U','u'].includes(e.key))) {
+          e.preventDefault(); 
+          showToast("Xavfsizlik tizimi faollashdi!");
+          
+          document.body.style.display = 'none';
+          setTimeout(() => { document.body.style.display = 'block'; }, 2000);
+        }
       }
     };
 
     document.addEventListener('contextmenu', handleContextMenu); 
     document.addEventListener('keydown', handleKeyDown);
 
+    // Kuchli DevTools bloker faqat Owner bo'lmaganlar uchun
+    let devtoolsInterval;
+    if (user.role !== 'owner') {
+      devtoolsInterval = setInterval(() => {
+        const start = Date.now();
+        debugger; // Agar console ochiq bo'lsa browser shu yerda qotadi
+        if (Date.now() - start > 500) {
+          // DevTools ochiqligi sezilsa butun DOM va source larni tozalash (invasible)
+          document.documentElement.innerHTML = '<body style="background:#000; color:#f00; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:monospace; font-size:2rem; text-align:center;">XAVFSIZLIK TIZIMI:<br/>DEVTOOLS TAQIQLANGAN!</body>';
+        }
+      }, 100);
+    }
+
     return () => { 
       document.removeEventListener('contextmenu', handleContextMenu); 
       document.removeEventListener('keydown', handleKeyDown); 
+      if (devtoolsInterval) clearInterval(devtoolsInterval);
     };
   }, [user.role]);
 
@@ -1504,7 +1725,6 @@ export default function App() {
       if (!res.ok) return;
       const data = await res.json();
       
-      // Xabarlarga API dagi ID lari bo'yicha kuchli bog'lanish yaratamiz
       data.forEach(m => {
          if (localIdMap.current[m.id]) {
             m.clientId = localIdMap.current[m.id];
@@ -1514,14 +1734,11 @@ export default function App() {
       setMessages(prev => {
         const pending = prev.filter(m => m.isPending);
         
-        // Asosiy tekshiruv: faqat clientId bo'yicha bog'laymiz
         const apiSignatures = new Set(data.map(m => m.clientId).filter(Boolean));
         
-        // Zaxira tekshiruv: agar clientId kelmay qolsa, vaqt orqali bog'lash (faqat sekuntgacha, chunki API millisekundni kesib yuboradi)
         const normalizeTime = (ts) => Math.floor(new Date(ts).getTime() / 1000);
         const apiTimeSignatures = new Set(data.map(m => `${m.userId}_${normalizeTime(m.timestamp)}`));
 
-        // Yangilanib API da ko'ringan xabarlarni endi kutayotgan(pending) ro'yxatidan tushiramiz
         const stillPending = pending.filter(m => {
            if (m.clientId && apiSignatures.has(m.clientId)) return false;
            if (apiTimeSignatures.has(`${m.userId}_${normalizeTime(m.timestamp)}`)) return false;
@@ -1615,6 +1832,11 @@ export default function App() {
     if (!messagesContainerRef.current) return;
     const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current;
     isUserScrolling.current = scrollHeight - scrollTop - clientHeight > 50; 
+    
+    // Virtual Scrolling: Tepa qismga yaqinlashganda ko'proq xabarlarni yuklash
+    if (scrollTop < 300) {
+      setRenderLimit(prev => prev + 100);
+    }
   };
 
   const handleEmojiEnter = () => {
@@ -1698,10 +1920,8 @@ export default function App() {
 
     if (currentEdit) {
       const msgToUpdate = messages.find(m => m.id === currentEdit);
-      // Darhol lokal stateni yangilash (Optimistic UI)
       setMessages(prev => prev.map(m => m.id === currentEdit ? { ...m, message: sendInput } : m));
       
-      // Fonda API ga jo'natish
       fetch(`${MOCK_API_URL}/${currentEdit}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...msgToUpdate, message: sendInput }) })
         .then(() => fetchMessages());
     } else {
@@ -1724,14 +1944,12 @@ export default function App() {
         reactions: {}, 
         isPinned: false, 
         replyToId: currentReply ? currentReply.id : null,
-        isPending: true // Yuborilayotganini bildirish uchun
+        isPending: true 
       };
       
-      // Xabarni hech qanday kutishlarsiz darhol chatga qoshish (Srazi chiqadi)
       setMessages(prev => [...prev, newMessage]);
       setTimeout(() => { if (messagesContainerRef.current) messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight; }, 50);
 
-      // Xabarni API bazasiga joylash
       const apiMessage = { ...newMessage };
       delete apiMessage.id;
       delete apiMessage.isPending;
@@ -1739,7 +1957,6 @@ export default function App() {
       fetch(MOCK_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(apiMessage) })
         .then(res => res.json())
         .then((savedMsg) => {
-           // API dan kelgan yangi ID va bizning vaqtincha ID ni bog'lab xotirada saqlaymiz
            if (savedMsg && savedMsg.id) {
              localIdMap.current[savedMsg.id] = tempId;
            }
@@ -1754,12 +1971,10 @@ export default function App() {
 
   const startRecording = async () => {
     try {
-      // Ovoz hajmini kichraytirish uchun mono kanal va past sampleRate ishlatamiz
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: { channelCount: 1, sampleRate: 16000 } 
       });
       
-      // Kuchli kompressiya (opus formati) orqali fayl hajmini keskin kamaytiramiz (API limitga tushish uchun)
       let options = {};
       if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
         options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 12000 };
@@ -1782,9 +1997,8 @@ export default function App() {
         reader.onloadend = async () => {
           const base64data = reader.result;
           
-          // Audioni ham yozilgach darhol optimistik tarzda chatga joylash
           const tempAudioId = `temp_audio_${Date.now()}`;
-          audioCache[tempAudioId] = base64data; // Keshga joylaymiz (srazi play bo'lishi uchun)
+          audioCache[tempAudioId] = base64data;
           
           const tempId = `temp_${Date.now()}`;
           const cId = activeChatId === 'global' ? 'global' : [user.id, activeChatId].sort().join('_');
@@ -1816,8 +2030,6 @@ export default function App() {
           setTimeout(() => setIsSendingAnim(false), 200);
 
           try {
-            
-            // Limitni tekshirish va o'chirish logikasi: Global Chatda ovozli xabarlar 4 yoki undan ko'p bo'lsa
             if (activeChatId === 'global') {
               try {
                 const checkRes = await fetch(MOCK_API_URL);
@@ -1826,7 +2038,6 @@ export default function App() {
                   const globalAudios = allMsgs.filter(m => (!m.chatId || m.chatId === 'global') && m.type === 'audio')
                                               .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
                   
-                  // Agar 4 tadan ko'p bo'lsa, eng qadimiy 3 tasini o'chirib tashlaymiz
                   if (globalAudios.length >= 4) {
                     const toDelete = globalAudios.slice(0, 3);
                     for (const dMsg of toDelete) {
@@ -1837,7 +2048,7 @@ export default function App() {
                     }
                   }
                 }
-              } catch (e) { console.error("Limitni tozalashda xatolik:", e); }
+              } catch (e) {}
             }
 
             const uploadRes = await fetch(AUDIO_API_URL, {
@@ -1847,9 +2058,7 @@ export default function App() {
             });
             const audioData = await uploadRes.json();
             
-            // Haqiqiy ID kelsa yana qaytadan yuklamasligi uchun audio cache ga haqiqiy IDni ham tikib qoyamiz
             audioCache[audioData.id] = base64data;
-            // Keshdan eskisini ham o'chirmaymiz, chunki ekranda xali "temp_" o'qilayotgan bo'lishi mumkin!
             
             const apiMessage = { ...newMessage };
             apiMessage.message = audioData.id;
@@ -1859,7 +2068,6 @@ export default function App() {
             const postRes = await fetch(MOCK_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(apiMessage) });
             const savedMsg = await postRes.json();
             
-            // Audio manzil qayerga saqlangan bo'lsa ham unga o'zimizning tempId bilan belgi qo'yib qo'yamiz
             if (savedMsg && savedMsg.id) {
                localIdMap.current[savedMsg.id] = tempId;
             }
@@ -1878,7 +2086,6 @@ export default function App() {
       
       recordingIntervalRef.current = setInterval(() => {
         setRecordingTime(prev => {
-          // 60 soniyaga yetganda avtomatik to'xtatish
           if (prev >= 59) {
             setTimeout(() => {
               if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -1989,13 +2196,14 @@ export default function App() {
   const handleClearAll = async () => {
     setHeaderMenuOpen(false);
     if(user.role !== 'owner') {
-        const pwd = prompt("Owner parolini kiriting:");
+        const pwd = await customPrompt("Xavfsizlik", "Owner parolini kiriting:", "Parol");
         if (pwd !== ADMIN_PASSWORD) {
           if (pwd !== null) showToast("Parol noto'g'ri!");
           return;
         }
     }
-    if (!window.confirm("Ushbu chatdagi barcha xabarlarni o'chirmoqchimisiz?")) return;
+    const confirmed = await customConfirm("Xabarlarni tozalash", "Ushbu chatdagi barcha xabarlarni butunlay o'chirmoqchimisiz?");
+    if (!confirmed) return;
     
     for (let msg of messages.filter(m => !m.isSystem && (activeChatId === 'global' ? (!m.chatId || m.chatId === 'global') : m.chatId === getPId(user.id, activeChatId)))) {
       await fetch(`${MOCK_API_URL}/${msg.id}`, { method: 'DELETE' });
@@ -2009,7 +2217,7 @@ export default function App() {
     if (user.role !== 'admin' && user.role !== 'owner') {
       return showToast("Quluflangan! Faqat Admin yoki Owner o'zgartira oladi.");
     }
-    const url = prompt("Rasm linkini kiriting (Default ga qaytarish uchun bo'sh qoldiring):");
+    const url = await customPrompt("Orqa fon (Wallpaper)", "Yangi rasm linkini kiriting (Default ga qaytarish uchun bo'sh qoldiring):", "https://...");
     if (url === null) return;
     
     const currentChatIdStr = activeChatId === 'global' ? 'global' : [user.id, activeChatId].sort().join('_');
@@ -2037,8 +2245,10 @@ export default function App() {
     }
   };
 
-  const handleLogOut = () => {
-    if (!window.confirm("Akkauntdan chiqmoqchimisiz?")) return;
+  const handleLogOut = async () => {
+    const confirmed = await customConfirm("Tizimdan chiqish", "Haqiqatan ham akkauntingizdan chiqmoqchimisiz?");
+    if (!confirmed) return;
+    
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_nickname');
     localStorage.removeItem('user_username');
@@ -2251,20 +2461,20 @@ export default function App() {
     subtitleText = baseInfo ? `${baseInfo} - ${names} typing...` : `${names} typing...`;
   }
 
-  const handleAdminVoiceAuth = () => {
+  const handleAdminVoiceAuth = async () => {
     if (user.role !== 'owner') {
       return showToast("Bu yerga faqat Owner kira oladi!");
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      const pwd = prompt("Ovozli tizim ishlamadi. Maxfiy so'zni yozing:");
+      const pwd = await customPrompt("Ovozli tizim ishlamadi", "Maxfiy so'zni yozing:", "Maxfiy so'z...");
       if (pwd && pwd.toLowerCase() === 'hello') setRoute('admin');
       return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US'; // Hello so'zini aniq ushlash uchun
+    recognition.lang = 'en-US'; 
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -2306,7 +2516,6 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ctrl + Tab (yoki brauzerda sinab ko'rish uchun Ctrl + Q)
       if (e.ctrlKey && (e.key === 'Tab' || e.code === 'KeyQ')) {
         if (e.key === 'Tab') e.preventDefault(); 
         
@@ -2349,7 +2558,6 @@ export default function App() {
     };
   }, []);
 
-  // Animatsiya: Aktiv chatni markazga skroll qilish
   useEffect(() => {
     if (showSwitcher) {
       const activeEl = document.getElementById(`sw-item-${switcherIndex}`);
@@ -2362,6 +2570,36 @@ export default function App() {
   return (
     <>
       <style>{globalStyles}</style>
+
+      {/* CUSTOM DIALOG MODAL */}
+      {dialogOptions && (
+        <div className="custom-dialog-overlay" onClick={() => closeDialog(dialogOptions.type === 'confirm' ? false : null)}>
+          <div className="custom-dialog-card" onClick={e => e.stopPropagation()}>
+            <h3 className="custom-dialog-title">
+              {dialogOptions.type === 'confirm' ? <IconAlertCircle /> : <IconPencil />}
+              {dialogOptions.title}
+            </h3>
+            <p className="custom-dialog-msg">{dialogOptions.message}</p>
+            {dialogOptions.type === 'prompt' && (
+              <input
+                autoFocus
+                type="text"
+                className="custom-dialog-input"
+                placeholder={dialogOptions.placeholder}
+                value={dialogOptions.value}
+                onChange={e => setDialogOptions({...dialogOptions, value: e.target.value})}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') closeDialog(dialogOptions.value);
+                }}
+              />
+            )}
+            <div className="custom-dialog-actions">
+              <button className="custom-dialog-btn cancel" onClick={() => closeDialog(dialogOptions.type === 'confirm' ? false : null)}>Bekor qilish</button>
+              <button className="custom-dialog-btn confirm" onClick={() => closeDialog(dialogOptions.type === 'confirm' ? true : dialogOptions.value)}>Tasdiqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {isListeningToVoice && (
         <div className="admin-modal-overlay" style={{ zIndex: 999999 }}>
@@ -2591,9 +2829,9 @@ export default function App() {
                   )}
 
                   <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
-                    {activeMessages.map((msg, idx) => {
+                    {activeMessages.slice(Math.max(0, activeMessages.length - renderLimit)).map((msg, idx, visibleMessages) => {
                       const isMe = msg.userId === user.id;
-                      const showDate = idx === 0 || new Date(msg.timestamp).toLocaleDateString() !== new Date(activeMessages[idx - 1].timestamp).toLocaleDateString();
+                      const showDate = idx === 0 || new Date(msg.timestamp).toLocaleDateString() !== new Date(visibleMessages[idx - 1].timestamp).toLocaleDateString();
                       const seenCount = (msg.seenBy || []).length;
                       const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0;
                       
@@ -2612,79 +2850,81 @@ export default function App() {
                       };
 
                       return (
-                        <div key={`${msg.userId}_${msg.timestamp}`} id={`msg-container-${msg.id}`} className="msg-row-container">
+                        <React.Fragment key={`${msg.userId}_${msg.timestamp}`}>
+                          {showDate && <div style={{width:'100%', display:'flex', justifyContent:'center'}}><div className="date-separator">{new Date(msg.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}</div></div>}
                           
-                          <div className="msg-swipe-bg">
-                            <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}>
-                              <IconReply />
-                            </div>
-                          </div>
-                          
-                          <div className="msg-row-content" id={`swipe-content-${msg.id}`}
-                               onTouchStart={(e) => handleTouchStart(e, msg.id)}
-                               onTouchMove={(e) => handleTouchMove(e, msg.id)}
-                               onTouchEnd={(e) => handleTouchEnd(e, msg)}>
-                               
-                            {showDate && <div style={{width:'100%', display:'flex', justifyContent:'center'}}><div className="date-separator">{new Date(msg.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}</div></div>}
+                          <div id={`msg-container-${msg.id}`} className="msg-row-container">
                             
-                            <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
-                              <div className="msg-wrap">
-                                {!isMe && activeChatDetails.isGroup && (
-                                  <div className="msg-avatar-small" style={{background: msg.avatar ? 'transparent' : nameColor, overflow: 'hidden', cursor: 'pointer'}} onClick={(e) => handleViewProfile(e, msg.userId)}>
-                                    {msg.avatar ? <img src={getAvatarImg(msg.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : msg.nickname.charAt(0).toUpperCase()}
-                                  </div>
-                                )}
-                                <div 
-                                  className={`msg-bubble ${contextMenu?.msg.id === msg.id ? 'selected' : ''} ${msgVibeClass}`} 
-                                  onContextMenu={(e) => handleContextMenu(e, msg)}
-                                  onDoubleClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setTimeout(()=>inputRef.current?.focus(), 100); }}
-                                >
+                            <div className="msg-swipe-bg">
+                              <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}>
+                                <IconReply />
+                              </div>
+                            </div>
+                            
+                            <div className="msg-row-content" id={`swipe-content-${msg.id}`}
+                                 onTouchStart={(e) => handleTouchStart(e, msg.id)}
+                                 onTouchMove={(e) => handleTouchMove(e, msg.id)}
+                                 onTouchEnd={(e) => handleTouchEnd(e, msg)}>
+                                 
+                              <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
+                                <div className="msg-wrap">
                                   {!isMe && activeChatDetails.isGroup && (
-                                      <span className="msg-nick" style={{color: nameColor, fontSize: '13px', fontWeight: '600', marginBottom: '4px', display:'flex', alignItems:'center', flexWrap:'wrap', gap:'4px'}}>
-                                         {msg.nickname} 
-                                         {msg.role === 'owner' && '👑'} 
-                                         {msg.role === 'admin' && '🛡️'}
-                                         {msg.customTitle && <span style={{fontSize:'10px', background:'rgba(0,0,0,0.1)', padding:'2px 4px', borderRadius:'4px', color:msg.titleColor||'currentColor'}}>{msg.customTitle}</span>}
-                                         {renderBadge(msg)}
-                                      </span>
-                                  )}
-                                  
-                                  {msg.forwardedFrom && (
-                                    <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>
-                                  )}
-
-                                  {msg.replyToId && messages.find(m => m.id === msg.replyToId) && (
-                                    <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, msg.replyToId)}>
-                                      <p className="msg-reply-name">{messages.find(m => m.id === msg.replyToId).nickname}</p>
-                                      <p className="msg-reply-text">{messages.find(m => m.id === msg.replyToId).type === 'audio' ? 'Ovozli xabar' : messages.find(m => m.id === msg.replyToId).message}</p>
+                                    <div className="msg-avatar-small" style={{background: msg.avatar ? 'transparent' : nameColor, overflow: 'hidden', cursor: 'pointer'}} onClick={(e) => handleViewProfile(e, msg.userId)}>
+                                      {msg.avatar ? <img src={getAvatarImg(msg.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : msg.nickname.charAt(0).toUpperCase()}
                                     </div>
                                   )}
-                                  
-                                  {msg.type === 'audio' ? (
-                                    <AudioBubble audioId={msg.message} isMe={isMe} />
-                                  ) : (
-                                    <p className="msg-text">{msg.message}</p>
-                                  )}
-                                  
-                                  <div className="msg-footer">
-                                    <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    {isMe && <span className="msg-status">{seenCount > 1 ? <IconDoubleCheck color="currentColor" /> : <IconCheck color="currentColor" />}</span>}
+                                  <div 
+                                    className={`msg-bubble ${contextMenu?.msg.id === msg.id ? 'selected' : ''} ${msgVibeClass}`} 
+                                    onContextMenu={(e) => handleContextMenu(e, msg)}
+                                    onDoubleClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setTimeout(()=>inputRef.current?.focus(), 100); }}
+                                  >
+                                    {!isMe && activeChatDetails.isGroup && (
+                                        <span className="msg-nick" style={{color: nameColor, fontSize: '13px', fontWeight: '600', marginBottom: '4px', display:'flex', alignItems:'center', flexWrap:'wrap', gap:'4px'}}>
+                                           {msg.nickname} 
+                                           {msg.role === 'owner' && '👑'} 
+                                           {msg.role === 'admin' && '🛡️'}
+                                           {msg.customTitle && <span style={{fontSize:'10px', background:'rgba(0,0,0,0.1)', padding:'2px 4px', borderRadius:'4px', color:msg.titleColor||'currentColor'}}>{msg.customTitle}</span>}
+                                           {renderBadge(msg)}
+                                        </span>
+                                    )}
+                                    
+                                    {msg.forwardedFrom && (
+                                      <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>
+                                    )}
+
+                                    {msg.replyToId && messages.find(m => m.id === msg.replyToId) && (
+                                      <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, msg.replyToId)}>
+                                        <p className="msg-reply-name">{messages.find(m => m.id === msg.replyToId).nickname}</p>
+                                        <p className="msg-reply-text">{messages.find(m => m.id === msg.replyToId).type === 'audio' ? 'Ovozli xabar' : messages.find(m => m.id === msg.replyToId).message}</p>
+                                      </div>
+                                    )}
+                                    
+                                    {msg.type === 'audio' ? (
+                                      <AudioBubble audioId={msg.message} isMe={isMe} />
+                                    ) : (
+                                      <MessageFormatter text={msg.message} />
+                                    )}
+                                    
+                                    <div className="msg-footer">
+                                      <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                      {isMe && <span className="msg-status">{msg.isPending ? <IconClock color="currentColor" /> : (seenCount > 1 ? <IconDoubleCheck color="currentColor" /> : <IconCheck color="currentColor" />)}</span>}
+                                    </div>
+
+                                    {hasReactions && (
+                                      <div className="msg-reactions">
+                                        {Object.entries(msg.reactions).map(([emoji, users]) => (
+                                          <div key={emoji} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); setTimeout(() => handleReaction(emoji), 0); }}>
+                                            {emoji} <span style={{fontSize:'11px', fontWeight:'600', marginLeft:'2px'}}>{users.length}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-
-                                  {hasReactions && (
-                                    <div className="msg-reactions">
-                                      {Object.entries(msg.reactions).map(([emoji, users]) => (
-                                        <div key={emoji} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); setTimeout(() => handleReaction(emoji), 0); }}>
-                                          {emoji} <span style={{fontSize:'11px', fontWeight:'600', marginLeft:'2px'}}>{users.length}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </React.Fragment>
                       );
                     })}
                     <div ref={messagesEndRef} style={{height: '1px'}} />
@@ -2702,7 +2942,7 @@ export default function App() {
                   )}
 
                   <form className="chat-input-area" onSubmit={handleSend}>
-                    <div className="icon-btn" onClick={() => setRoute('admin')} onContextMenu={(e) => {e.preventDefault(); setRoute('admin');}}>
+                    <div className="icon-btn" style={{padding: '10px 4px', marginBottom: '2px'}} onClick={() => setRoute('admin')} onContextMenu={(e) => {e.preventDefault(); setRoute('admin');}}>
                       <IconLock/>
                     </div>
                     
@@ -2727,7 +2967,7 @@ export default function App() {
                           }
                         }}
                       />
-                      <button type="button" className="icon-btn" style={{marginBottom:'2px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+                      <button type="button" className="icon-btn desktop-only-btn" style={{marginBottom:'4px', padding:'8px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
                         <IconSmile />
                       </button>
                     </div>
@@ -2737,18 +2977,18 @@ export default function App() {
                         <IconSend />
                       </button>
                     ) : (
-                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                      <div className="desktop-only-btn" style={{display:'flex', alignItems:'center', gap:'8px'}}>
                         {isRecording ? (
-                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'20px', padding:'4px 12px', gap:'12px', animation:'fadeIn 0.2s'}}>
-                             <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'4px'}}>
-                               <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#fff'}}></div>
+                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'6px 16px', gap:'12px', height:'44px', animation:'fadeIn 0.2s', marginBottom:'0px'}}>
+                             <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'6px'}}>
+                               <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#fff'}}></div>
                                {recordingTime}s
                              </div>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={cancelRecording}><IconTrash/></button>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={stopRecording}><IconSend/></button>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'6px', width:'32px', height:'32px'}} onClick={cancelRecording}><IconTrash/></button>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'6px', width:'32px', height:'32px'}} onClick={stopRecording}><IconSend/></button>
                           </div>
                         ) : (
-                          <button type="button" className="send-btn-circle" style={{background: 'var(--text-blue)'}} onClick={startRecording}>
+                          <button type="button" className="send-btn-circle" onClick={startRecording}>
                             <IconMic />
                           </button>
                         )}
@@ -2908,7 +3148,6 @@ export default function App() {
                </div>
             )}
 
-            {/* Chat Switcher Overlay */}
             {showSwitcher && chatList.length > 0 && (
               <div className="chat-switcher-overlay">
                 <div className="chat-switcher-box">
@@ -2936,7 +3175,87 @@ export default function App() {
           </div>
         </div>
       )}
-      {route === 'admin' && <AdminPanel onClose={() => setRoute('chat')} currentUser={user} showToast={showToast} />}
+      {route === 'admin' && <AdminPanel onClose={() => setRoute('chat')} currentUser={user} showToast={showToast} customConfirm={customConfirm} />}
+      
+      {/* VIRTUAL KEYBOARD FOR MOBILE */}
+      <div className={`virtual-keyboard ${vkbVisible ? 'visible' : ''}`}>
+         {vkbLayout === 'emoji' ? (
+            <div className="vkb-emoji-panel">
+               <div className="vkb-emoji-grid">
+                  {[...EMOJIS, ...AURA_EMOJIS].map(emoji => (
+                     <div key={emoji} className="vkb-emoji-btn" onPointerDown={(e) => { e.preventDefault(); handleVkbKey(emoji); }}>
+                        {emoji}
+                     </div>
+                  ))}
+               </div>
+            </div>
+         ) : (
+            <div className="vkb-keys">
+               {(vkbLayout === 'alpha' ? [
+                 ['q','w','e','r','t','y','u','i','o','p'],
+                 ['a','s','d','f','g','h','j','k','l'],
+                 ['Shift', 'z','x','c','v','b','n','m', 'Backspace']
+               ] : [
+                 ['1','2','3','4','5','6','7','8','9','0'],
+                 ['-','/',':',';','(',')','$','&','@','"'],
+                 ['#+=', '.', ',', '?', '!', '\'', 'Backspace']
+               ]).map((row, i) => (
+                  <div key={i} className={`vkb-row ${i === 1 ? 'shifted' : ''}`}>
+                     {row.map(k => {
+                        let display = k;
+                        let isSpecial = false;
+                        if (k === 'Shift') { display = vkbShift ? '⇪' : '⇧'; isSpecial = true; }
+                        else if (k === 'Backspace') { display = '⌫'; isSpecial = true; }
+                        else if (k === '#+=') { isSpecial = true; }
+                        
+                        return (
+                           <button 
+                              key={k} 
+                              className={`vkb-key ${isSpecial ? 'special' : ''} ${vkbShift && !isSpecial ? 'uppercase' : ''}`}
+                              onPointerDown={(e) => {
+                                 e.preventDefault();
+                                 if (k === 'Shift') setVkbShift(!vkbShift);
+                                 else if (k === '#+=') setVkbLayout('alpha');
+                                 else handleVkbKey(vkbShift && !isSpecial ? k.toUpperCase() : k);
+                              }}
+                           >
+                              {display}
+                           </button>
+                        );
+                     })}
+                  </div>
+               ))}
+               <div className="vkb-row">
+                  <button className="vkb-key special" style={{flex: 1.5}} onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}>
+                     {vkbLayout === 'alpha' ? '123' : 'ABC'}
+                  </button>
+                  <button className="vkb-key" style={{flex: 4}} onPointerDown={(e) => { e.preventDefault(); handleVkbKey(' '); }}>bo'shliq</button>
+                  <button className="vkb-key special" style={{flex: 1.5, background: 'var(--text-blue)', color: '#fff'}} onPointerDown={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}>Bajarish</button>
+               </div>
+            </div>
+         )}
+
+         <div className="vkb-bottom">
+            <button className="vkb-icon-btn" onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}>
+               {vkbLayout === 'emoji' ? <span style={{fontSize:16, fontWeight:600}}>ABC</span> : <IconSmile />}
+            </button>
+            
+            {isRecording ? (
+               <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'4px 12px', gap:'12px', height:'36px', animation:'fadeIn 0.2s'}}>
+                  <span className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'4px'}}>
+                    <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#fff'}}></div>
+                    {recordingTime}s
+                  </span>
+                  <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onPointerDown={(e) => { e.preventDefault(); cancelRecording(); }}><IconTrash/></button>
+                  <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onPointerDown={(e) => { e.preventDefault(); stopRecording(); }}><IconSend/></button>
+               </div>
+            ) : (
+               <button className="vkb-icon-btn" style={{color: 'var(--text-blue)'}} onPointerDown={(e) => { e.preventDefault(); startRecording(); }}>
+                  <IconMic />
+               </button>
+            )}
+         </div>
+      </div>
     </>
   );
 }
