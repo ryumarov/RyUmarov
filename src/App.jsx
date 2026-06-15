@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 const MOCK_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Menu';
 const LOGIN_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Login';
@@ -792,7 +792,7 @@ const globalStyles = `
 
 const audioCache = {};
 
-const AudioBubble = ({ audioId, isMe }) => {
+const AudioBubble = React.memo(({ audioId, isMe }) => {
   const [src, setSrc] = useState(audioCache[audioId] || null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -878,7 +878,7 @@ const AudioBubble = ({ audioId, isMe }) => {
       </div>
     </div>
   );
-};
+});
 
 const syntaxHighlight = (code) => {
   return code
@@ -891,7 +891,7 @@ const syntaxHighlight = (code) => {
     .replace(/\b([0-9]+)\b/g, '<span style="color: #d19a66;">$1</span>'); // Raqamlar
 };
 
-const MessageFormatter = ({ text }) => {
+const MessageFormatter = React.memo(({ text }) => {
   if (!text) return null;
 
   const codeRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -973,7 +973,7 @@ const MessageFormatter = ({ text }) => {
       })}
     </div>
   );
-};
+});
 
 const getDeviceInfo = () => {
   const ua = navigator.userAgent;
@@ -2676,12 +2676,12 @@ export default function App() {
     delete touchState.current[msg.id];
   };
 
-  const getPId = (id1, id2) => [id1, id2].sort().join('_');
+  const getPId = useCallback((id1, id2) => [id1, id2].sort().join('_'), []);
   
-  const globalMsgs = messages.filter(m => !m.isSystem && (!m.chatId || m.chatId === 'global'));
+  const globalMsgs = useMemo(() => messages.filter(m => !m.isSystem && (!m.chatId || m.chatId === 'global')), [messages]);
   
   // Barcha chatlar ro'yxatini alohida saqlab olamiz (qidiruv buzib qoymasligi uchun)
-  const allChats = [
+  const allChats = useMemo(() => [
     {
       id: 'global', name: 'Global Chat', isGroup: true, avatarColor: 'var(--text-blue)', avatarText: 'GC', members: `${usersList.length + 1} members`,
       lastMsgObj: globalMsgs[globalMsgs.length - 1],
@@ -2700,35 +2700,36 @@ export default function App() {
         role: liveU.role
       };
     })
-  ];
+  ], [globalMsgs, usersList, messages, systemUsers, user.id, getPId]);
 
   // Qidiruv faqat chap panel uchun chatList ni filtrlaydi
-  const chatList = allChats.filter(c => (c.name || '').toLowerCase().includes(search.toLowerCase())).sort((a,b) => {
+  const chatList = useMemo(() => allChats.filter(c => (c.name || '').toLowerCase().includes(search.toLowerCase())).sort((a,b) => {
     if(a.id === 'global') return -1; if(b.id === 'global') return 1;
     const tA = a.lastMsgObj ? new Date(a.lastMsgObj.timestamp).getTime() : 0;
     const tB = b.lastMsgObj ? new Date(b.lastMsgObj.timestamp).getTime() : 0;
     return tB - tA;
-  });
+  }), [allChats, search]);
 
   // O'ng paneldagi ma'lumot qidiruvdan qatiy nazar allChats'dan olinadi (Crash bo'lmaydi!)
-  const activeChatDetails = allChats.find(c => c.id === activeChatId) || allChats[0];
+  const activeChatDetails = useMemo(() => allChats.find(c => c.id === activeChatId) || allChats[0], [allChats, activeChatId]);
   
   chatListRef.current = chatList;
   activeChatIdRef.current = activeChatId;
 
-  const activeMessages = messages.filter(m => !m.isSystem && (activeChatId === 'global' ? (!m.chatId || m.chatId === 'global') : m.chatId === getPId(user.id, activeChatId)));
-  const pinnedMessage = activeMessages.slice().reverse().find(m => m.isPinned);
+  const activeMessages = useMemo(() => messages.filter(m => !m.isSystem && (activeChatId === 'global' ? (!m.chatId || m.chatId === 'global') : m.chatId === getPId(user.id, activeChatId))), [messages, activeChatId, user.id, getPId]);
+  const pinnedMessage = useMemo(() => activeMessages.slice().reverse().find(m => m.isPinned), [activeMessages]);
 
-  const currentChatIdStr = activeChatId === 'global' ? 'global' : [user.id, activeChatId].sort().join('_');
+  const currentChatIdStr = activeChatId === 'global' ? 'global' : getPId(user.id, activeChatId);
   const currentWallpaper = chatSettings.find(s => s.chatId === currentChatIdStr)?.wallpaperUrl;
-  const chatAreaStyle = currentWallpaper ? { 
+  const chatAreaStyle = useMemo(() => currentWallpaper ? { 
     backgroundImage: `url(${currentWallpaper})`, 
     backgroundSize: 'cover', 
     backgroundPosition: 'center', 
     backgroundRepeat: 'no-repeat' 
-  } : {};
+  } : {}, [currentWallpaper]);
 
-  const activeTypists = typingUsers.filter(u => u.chatId === activeChatId && u.id !== user.id && Date.now() - u.time < 1000);
+  const activeTypists = useMemo(() => typingUsers.filter(u => u.chatId === activeChatId && u.id !== user.id && Date.now() - u.time < 1000), [typingUsers, activeChatId, user.id]);
+  
   let subtitleText = activeChatDetails?.members || '';
   if (activeTypists.length > 0 && activeChatDetails) {
     const names = activeTypists.map(u => u.nick).join(', ');
