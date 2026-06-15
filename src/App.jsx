@@ -3279,13 +3279,13 @@ export default function App() {
                 <div className="emoji-panel-title">Smileys</div>
                 <div className="emoji-grid" style={{marginBottom:'8px'}}>
                   {EMOJIS.map(emoji => (
-                    <div key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)}>{emoji}</div>
+                    <button type="button" key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)} style={{background:'transparent', border:'none'}}>{emoji}</button>
                   ))}
                 </div>
                 <div className="emoji-panel-title">Aura & Objects</div>
                 <div className="emoji-grid">
                   {AURA_EMOJIS.map(emoji => (
-                    <div key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)}>{emoji}</div>
+                    <button type="button" key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)} style={{background:'transparent', border:'none'}}>{emoji}</button>
                   ))}
                 </div>
               </div>
@@ -3297,7 +3297,7 @@ export default function App() {
                 <div className="context-container" style={{ top: contextMenu.y, left: contextMenu.x }}>
                   <div className="cm-reactions">
                     {EMOJIS.map(emoji => (
-                      <span key={emoji} className="cm-reaction" onClick={() => handleReaction(emoji)}>{emoji}</span>
+                      <button type="button" key={emoji} className="cm-reaction" onClick={() => handleReaction(emoji)} style={{border:'none', background:'transparent'}}>{emoji}</button>
                     ))}
                   </div>
                   <div className="context-menu">
