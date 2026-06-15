@@ -1650,8 +1650,9 @@ export default function App() {
        const isKeyboard = e.target.closest('.virtual-keyboard');
        const isInput = e.target.closest('input');
        const isTextarea = e.target.closest('textarea');
+       const isEmojiPanel = e.target.closest('.emoji-panel-container');
        
-       if (!isKeyboard && !isInput && !isTextarea) {
+       if (!isKeyboard && !isInput && !isTextarea && !isEmojiPanel) {
           setVkbVisible(false);
           if (vkbTarget) {
              vkbTarget.blur();
@@ -1662,7 +1663,7 @@ export default function App() {
 
     const handleTouchMove = (e) => {
        // Prevent scrolling when keyboard is open
-       if (vkbVisible && e.target.closest('.virtual-keyboard')) {
+       if (vkbVisible && e.target.closest('.virtual-keyboard') && !e.target.closest('.vkb-emoji-panel')) {
           e.preventDefault();
        }
     };
@@ -1680,6 +1681,11 @@ export default function App() {
 
   const handleVkbKey = (key) => {
     if (!vkbTarget) return;
+
+    // Emoji yoki boshqa element bosilganda yo'qolgan fokusni darhol tiklaymiz
+    if (document.activeElement !== vkbTarget) {
+      vkbTarget.focus({ preventScroll: true });
+    }
 
     const tag = vkbTarget.tagName;
     let val = vkbTarget.value || '';
@@ -3462,9 +3468,8 @@ export default function App() {
                         key={emoji}
                         type="button"
                         className="vkb-emoji-btn"
-                        onPointerDown={(e) => {
+                        onClick={(e) => {
                            e.preventDefault();
-                           e.stopPropagation();
                            handleVkbKey(emoji);
                         }}
                      >
