@@ -1690,7 +1690,9 @@ export default function App() {
     const descriptor = Object.getOwnPropertyDescriptor(tag === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value');
     const setter = descriptor?.set;
 
-    if (key === 'BACKSPACE') {
+    const upperKey = key.toUpperCase();
+
+    if (upperKey === 'BACKSPACE') {
       // Delete selected text or one character before cursor
       if (start === end && start > 0) {
         val = val.substring(0, start - 1) + val.substring(end);
@@ -1699,7 +1701,7 @@ export default function App() {
         val = val.substring(0, start) + val.substring(end);
         end = start;
       }
-    } else if (key === 'ENTER') {
+    } else if (upperKey === 'ENTER') {
       if (tag === 'TEXTAREA' && !vkbTarget.classList.contains('chat-input')) {
         // Allow newline in textarea
         val = val.substring(0, start) + '\n' + val.substring(end);
@@ -1744,7 +1746,7 @@ export default function App() {
     });
 
     // Auto-deactivate shift after typing (unless it was a special key)
-    if (vkbShift && key !== 'BACKSPACE' && key !== 'ENTER' && key.length === 1) {
+    if (vkbShift && upperKey !== 'BACKSPACE' && upperKey !== 'ENTER' && key.length === 1) {
       setVkbShift(false);
     }
   };
@@ -3465,11 +3467,6 @@ export default function App() {
                            e.stopPropagation();
                            handleVkbKey(emoji);
                         }}
-                        onTouchStart={(e) => {
-                           e.preventDefault();
-                           e.stopPropagation();
-                           handleVkbKey(emoji);
-                        }}
                      >
                         {emoji}
                      </button>
@@ -3523,18 +3520,6 @@ export default function App() {
                                     handleVkbKey(shouldUppercase ? k.toUpperCase() : k);
                                  }
                               }}
-                              onTouchStart={(e) => {
-                                 e.preventDefault();
-                                 e.stopPropagation();
-                                 
-                                 if (k === 'Shift') {
-                                    setVkbShift(!vkbShift);
-                                 } else if (k === '#+=') {
-                                    setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha');
-                                 } else {
-                                    handleVkbKey(shouldUppercase ? k.toUpperCase() : k);
-                                 }
-                              }}
                            >
                               {displayText}
                            </button>
@@ -3550,7 +3535,6 @@ export default function App() {
                      className="vkb-key special" 
                      style={{flex: '0 0 auto', minWidth: '50px'}}
                      onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
-                     onTouchStart={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
                   >
                      {vkbLayout === 'alpha' ? '123' : 'ABC'}
                   </button>
@@ -3559,7 +3543,6 @@ export default function App() {
                      className="vkb-key" 
                      style={{flex: 1, minWidth: '50px'}}
                      onPointerDown={(e) => { e.preventDefault(); handleVkbKey(' '); }}
-                     onTouchStart={(e) => { e.preventDefault(); handleVkbKey(' '); }}
                   >
                      bo'shliq
                   </button>
@@ -3568,7 +3551,6 @@ export default function App() {
                      className="vkb-key special" 
                      style={{flex: '0 0 auto', minWidth: '60px', background: 'var(--text-blue)', color: '#fff'}}
                      onPointerDown={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}
-                     onTouchStart={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}
                   >
                      Bajarish
                   </button>
@@ -3582,7 +3564,6 @@ export default function App() {
                type="button"
                className="vkb-icon-btn"
                onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
-               onTouchStart={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
             >
                {vkbLayout === 'emoji' ? <span style={{fontSize: '16px', fontWeight: 600}}>ABC</span> : <IconSmile />}
             </button>
@@ -3598,7 +3579,6 @@ export default function App() {
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
                      onPointerDown={(e) => { e.preventDefault(); cancelRecording(); }}
-                     onTouchStart={(e) => { e.preventDefault(); cancelRecording(); }}
                   >
                      <IconTrash/>
                   </button>
@@ -3607,7 +3587,6 @@ export default function App() {
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
                      onPointerDown={(e) => { e.preventDefault(); stopRecording(); }}
-                     onTouchStart={(e) => { e.preventDefault(); stopRecording(); }}
                   >
                      <IconSend/>
                   </button>
@@ -3618,7 +3597,6 @@ export default function App() {
                   className="vkb-icon-btn" 
                   style={{color: 'var(--text-blue)'}}
                   onPointerDown={(e) => { e.preventDefault(); startRecording(); }}
-                  onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
                >
                   <IconMic />
                </button>
