@@ -26,6 +26,8 @@ const IconSend = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="non
 const IconChevronLeft = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
 const IconMore = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>;
 const IconClose = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconClip = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>;
+const IconArrowUp = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>;
 const IconSearch = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const IconMenu = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
 const IconPencil = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
@@ -349,13 +351,14 @@ const globalStyles = `
   .reply-preview-bar .pinned-title { color: var(--text-blue); font-size: 14px; font-weight: 600; margin: 0 0 2px 0;}
   .reply-preview-bar .pinned-text { color: var(--text-main); font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-  /* Mobile-first and modern input area adjustments */
-  .chat-input-area { padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom)); background: var(--bg-sidebar); display: flex; align-items: flex-end; gap: 12px; z-index: 10; border-top: 1px solid var(--border-color); }
-  @media (max-width: 768px) { .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); gap: 8px; } }
+  /* Mobile-first and modern input area adjustments (WhatsApp style) */
+  .chat-input-area { padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); background: #e5e5ea; display: flex; align-items: flex-end; gap: 8px; z-index: 10; border-top: 1px solid #d1d1d6; }
+  body.dark .chat-input-area { background: #1c1c1e; border-top-color: #38383a; }
   
-  .chat-input-wrapper { flex: 1; display: flex; align-items: flex-end; background: var(--bg-input); border-radius: 24px; padding: 0 4px 0 16px; min-height: 44px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; border: 1px solid transparent; }
-  .chat-input-wrapper.sending { transform: scale(0.97); opacity: 0.6; }
-  .chat-input { flex: 1; padding: 12px 8px 12px 0; border: none; background: transparent; font-size: 16px; color: var(--text-main); outline: none; resize: none; max-height: 120px; font-family: inherit; line-height: 1.4; transition: opacity 0.2s; }
+  .chat-input-wrapper { flex: 1; display: flex; align-items: flex-end; background: #ffffff; border-radius: 20px; padding: 0 12px; min-height: 38px; border: 1px solid #d1d1d6; transition: opacity 0.2s; }
+  body.dark .chat-input-wrapper { background: #000000; border-color: #38383a; }
+  .chat-input-wrapper.sending { opacity: 0.6; }
+  .chat-input { flex: 1; padding: 9px 0; border: none; background: transparent; font-size: 16px; color: var(--text-main); outline: none; resize: none; max-height: 100px; font-family: inherit; line-height: 1.4; }
   .chat-input:focus { outline: none; }
   /* Prevent native mobile keyboard */
   @media (max-width: 768px) {
@@ -366,10 +369,8 @@ const globalStyles = `
       text-size-adjust: none;
     }
   }
-  .chat-input-wrapper.sending .chat-input { opacity: 0; }
   
-  .send-btn-circle { width: 44px; height: 44px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.1s, background 0.2s; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
-  @media (max-width: 768px) { .send-btn-circle { width: 42px; height: 42px; } }
+  .send-btn-circle { width: 34px; height: 34px; border-radius: 50%; background: var(--text-blue); color: white; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: transform 0.1s, background 0.2s; flex-shrink: 0; margin-bottom: 2px; }
   .send-btn-circle:active { transform: scale(0.92); }
   .send-btn-circle.sending { animation: sendFlyAnim 0.3s ease-out forwards; }
 
@@ -1628,21 +1629,12 @@ export default function App() {
        const tag = e.target.tagName;
        if (tag === 'INPUT' || tag === 'TEXTAREA') {
           if (e.target.type !== 'color' && e.target.type !== 'range' && e.target.type !== 'date' && e.target.type !== 'time') {
-             // Prevent native keyboard with multiple methods
              e.target.setAttribute('inputmode', 'none');
              e.target.style.textSizeAdjust = 'none'; // Prevent zoom
-             e.target.blur();
              
-             // Set as VKB target
              setVkbTarget(e.target);
              setVkbVisible(true);
              if (vkbLayout !== 'emoji') setVkbLayout('alpha');
-             
-             // Re-focus with caret positioning
-             setTimeout(() => {
-               e.target.focus({ preventScroll: false });
-               e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-             }, 50);
           }
        }
     };
@@ -1652,8 +1644,10 @@ export default function App() {
        const isInput = e.target.closest('input');
        const isTextarea = e.target.closest('textarea');
        const isEmojiPanel = e.target.closest('.emoji-panel-container');
+       const isActionBtn = e.target.closest('button');
+       const isIconBtn = e.target.closest('.icon-btn');
        
-       if (!isKeyboard && !isInput && !isTextarea && !isEmojiPanel) {
+       if (!isKeyboard && !isInput && !isTextarea && !isEmojiPanel && !isActionBtn && !isIconBtn) {
           setVkbVisible(false);
           if (vkbTarget) {
              vkbTarget.blur();
@@ -1663,7 +1657,6 @@ export default function App() {
     };
 
     const handleTouchMove = (e) => {
-       // Prevent scrolling when keyboard is open
        if (vkbVisible && e.target.closest('.virtual-keyboard') && !e.target.closest('.vkb-emoji-panel')) {
           e.preventDefault();
        }
@@ -1685,7 +1678,6 @@ export default function App() {
   const handleVkbKey = (key, action = null) => {
     if (!vkbTarget) return;
 
-    // Ikki marta yozib yuborishni oldini olish (Debounce)
     const now = Date.now();
     if (now - lastVkbTap.current < 50) return;
     lastVkbTap.current = now;
@@ -2963,7 +2955,7 @@ export default function App() {
                 </div>
                 <div className="search-box">
                   <IconSearch/>
-                  <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search" className="search-input" />
+                  <input type="text" value={search} inputMode="none" onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }} onChange={e=>setSearch(e.target.value)} placeholder="Search" className="search-input" />
                 </div>
                 <div className="tabs"><div className="tab active">All</div><div className="tab">Umarov</div></div>
               </div>
@@ -3231,8 +3223,8 @@ export default function App() {
                   )}
 
                   <form className="chat-input-area" onSubmit={handleSend}>
-                    <div className="icon-btn" style={{padding: '10px 4px', marginBottom: '2px'}} onClick={() => setRoute('admin')} onContextMenu={(e) => {e.preventDefault(); setRoute('admin');}}>
-                      <IconLock/>
+                    <div className="icon-btn" style={{padding: '6px', marginBottom: '2px', color: 'var(--text-icon)'}} onClick={() => setRoute('admin')}>
+                      <IconClip/>
                     </div>
                     
                     <div className={`chat-input-wrapper ${isSendingAnim ? 'sending' : ''}`}>
@@ -3241,7 +3233,9 @@ export default function App() {
                         className="chat-input"
                         placeholder="Message..."
                         value={input}
+                        inputMode="none"
                         rows={1}
+                        onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }}
                         onChange={(e) => { 
                           setInput(e.target.value); 
                           handleTyping(e.target.value); 
@@ -3256,28 +3250,28 @@ export default function App() {
                           }
                         }}
                       />
-                      <button type="button" className="icon-btn desktop-only-btn" style={{marginBottom:'4px', padding:'8px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+                      <button type="button" className="icon-btn desktop-only-btn" style={{marginBottom:'4px', padding:'6px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
                         <IconSmile />
                       </button>
                     </div>
                     
                     {input.trim() || isSendingAnim || editingId ? (
                       <button type="submit" className={`send-btn-circle ${isSendingAnim ? 'sending' : ''}`} disabled={isSendingAnim}>
-                        <IconSend />
+                        <IconArrowUp />
                       </button>
                     ) : (
                       <div className="desktop-only-btn" style={{display:'flex', alignItems:'center', gap:'8px'}}>
                         {isRecording ? (
-                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'6px 16px', gap:'12px', height:'44px', animation:'fadeIn 0.2s', marginBottom:'0px'}}>
+                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'6px 16px', gap:'12px', height:'38px', animation:'fadeIn 0.2s', marginBottom:'0px'}}>
                              <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'6px'}}>
                                <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#fff'}}></div>
                                {recordingTime}s
                              </div>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'6px', width:'32px', height:'32px'}} onClick={cancelRecording}><IconTrash/></button>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'6px', width:'32px', height:'32px'}} onClick={stopRecording}><IconSend/></button>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={cancelRecording}><IconTrash/></button>
+                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={stopRecording}><IconArrowUp/></button>
                           </div>
                         ) : (
-                          <button type="button" className="send-btn-circle" onClick={startRecording}>
+                          <button type="button" className="icon-btn" style={{color:'var(--text-blue)', padding:'6px', marginBottom:'2px'}} onClick={startRecording}>
                             <IconMic />
                           </button>
                         )}
@@ -3476,7 +3470,6 @@ export default function App() {
                         key={`emoji-${idx}`}
                         type="button"
                         className="vkb-emoji-btn"
-                        onMouseDown={(e) => e.preventDefault()}
                         onClick={(e) => {
                            e.preventDefault();
                            e.stopPropagation();
@@ -3523,7 +3516,7 @@ export default function App() {
                               key={k + rowIdx} 
                               type="button"
                               className={`vkb-key ${isSpecial ? 'special' : ''} ${shouldUppercase ? 'uppercase' : ''}`}
-                              onPointerDown={(e) => {
+                              onClick={(e) => {
                                  e.preventDefault();
                                  e.stopPropagation();
                                  
@@ -3551,7 +3544,7 @@ export default function App() {
                      type="button"
                      className="vkb-key special" 
                      style={{flex: '0 0 auto', minWidth: '50px'}}
-                     onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha'); }}
                   >
                      {vkbLayout === 'alpha' ? '123' : 'ABC'}
                   </button>
@@ -3559,7 +3552,7 @@ export default function App() {
                      type="button"
                      className="vkb-key" 
                      style={{flex: 1, minWidth: '50px'}}
-                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey(' '); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVkbKey(' '); }}
                   >
                      bo'shliq
                   </button>
@@ -3567,7 +3560,7 @@ export default function App() {
                      type="button"
                      className="vkb-key special" 
                      style={{flex: '0 0 auto', minWidth: '60px', background: 'var(--text-blue)', color: '#fff'}}
-                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey(null, 'ENTER'); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVkbKey(null, 'ENTER'); }}
                   >
                      Bajarish
                   </button>
@@ -3580,7 +3573,7 @@ export default function App() {
             <button 
                type="button"
                className="vkb-icon-btn"
-               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
+               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
             >
                {vkbLayout === 'emoji' ? <span style={{fontSize: '16px', fontWeight: 600}}>ABC</span> : <IconSmile />}
             </button>
@@ -3595,7 +3588,7 @@ export default function App() {
                      type="button" 
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
-                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); cancelRecording(); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); cancelRecording(); }}
                   >
                      <IconTrash/>
                   </button>
@@ -3603,9 +3596,9 @@ export default function App() {
                      type="button" 
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
-                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); stopRecording(); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); stopRecording(); }}
                   >
-                     <IconSend/>
+                     <IconArrowUp/>
                   </button>
                </div>
             ) : (
@@ -3613,7 +3606,7 @@ export default function App() {
                   type="button"
                   className="vkb-icon-btn" 
                   style={{color: 'var(--text-blue)'}}
-                  onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startRecording(); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); startRecording(); }}
                >
                   <IconMic />
                </button>
