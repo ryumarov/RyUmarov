@@ -1647,7 +1647,7 @@ export default function App() {
        }
     };
 
-    const handleClick = (e) => {
+    const handleOutsideInteraction = (e) => {
        const isKeyboard = e.target.closest('.virtual-keyboard');
        const isInput = e.target.closest('input');
        const isTextarea = e.target.closest('textarea');
@@ -1670,12 +1670,14 @@ export default function App() {
     };
 
     document.addEventListener('focusin', handleFocus, { passive: false, capture: true });
-    document.addEventListener('click', handleClick, { passive: true });
+    document.addEventListener('click', handleOutsideInteraction, { passive: true });
+    document.addEventListener('touchstart', handleOutsideInteraction, { passive: true });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
        document.removeEventListener('focusin', handleFocus, true);
-       document.removeEventListener('click', handleClick);
+       document.removeEventListener('click', handleOutsideInteraction);
+       document.removeEventListener('touchstart', handleOutsideInteraction);
        document.removeEventListener('touchmove', handleTouchMove);
     };
   }, [vkbVisible, vkbLayout, vkbTarget]);
@@ -3459,13 +3461,15 @@ export default function App() {
          {vkbLayout === 'emoji' ? (
             <div className="vkb-emoji-panel">
                <div className="vkb-emoji-grid">
-                  {[...EMOJIS, ...AURA_EMOJIS].map(emoji => (
+                  {[...new Set([...EMOJIS, ...AURA_EMOJIS])].map((emoji, idx) => (
                      <button
-                        key={emoji}
+                        key={`emoji-${idx}`}
                         type="button"
                         className="vkb-emoji-btn"
-                        onPointerDown={(e) => {
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={(e) => {
                            e.preventDefault();
+                           e.stopPropagation();
                            handleVkbKey(emoji);
                         }}
                      >
@@ -3566,7 +3570,7 @@ export default function App() {
             <button 
                type="button"
                className="vkb-icon-btn"
-               onPointerDown={(e) => { e.preventDefault(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
+               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setVkbLayout(vkbLayout === 'emoji' ? 'alpha' : 'emoji'); }}
             >
                {vkbLayout === 'emoji' ? <span style={{fontSize: '16px', fontWeight: 600}}>ABC</span> : <IconSmile />}
             </button>
@@ -3581,7 +3585,7 @@ export default function App() {
                      type="button" 
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
-                     onPointerDown={(e) => { e.preventDefault(); cancelRecording(); }}
+                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); cancelRecording(); }}
                   >
                      <IconTrash/>
                   </button>
@@ -3589,7 +3593,7 @@ export default function App() {
                      type="button" 
                      className="icon-btn" 
                      style={{color:'#fff', padding:'4px', width:'32px', height:'32px'}}
-                     onPointerDown={(e) => { e.preventDefault(); stopRecording(); }}
+                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); stopRecording(); }}
                   >
                      <IconSend/>
                   </button>
@@ -3599,7 +3603,7 @@ export default function App() {
                   type="button"
                   className="vkb-icon-btn" 
                   style={{color: 'var(--text-blue)'}}
-                  onPointerDown={(e) => { e.preventDefault(); startRecording(); }}
+                  onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startRecording(); }}
                >
                   <IconMic />
                </button>
