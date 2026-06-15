@@ -2933,534 +2933,602 @@ export default function App() {
         </div>
       )}
 
-      {toast && <div className="toast-notification animate-slide-down">{toast}</div>}
-      
-      {route === 'loading' && <div className="screen-center"><div className="spinner"></div></div>}
-      {route === 'ban' && <BanScreen />}
+      {toast && (
+        <div className="toast-notification animate-slide-down">
+          {toast}
+        </div>
+      )}
+
+      {/* Routs */}
+      {route === 'loading' && (
+        <div className="screen-center">
+          <div className="spinner"></div>
+        </div>
+      )}
+
       {route === 'dnq' && <DnqScreen />}
       
-      {route === 'auth' && <AuthScreen onComplete={handleAuthComplete} showToast={showToast} ip={user.ip} onDnq={() => setRoute('dnq')} />}
-      
+      {route === 'ban' && <BanScreen />}
+
+      {route === 'auth' && (
+        <AuthScreen 
+          onComplete={handleAuthComplete} 
+          showToast={showToast} 
+          ip={user.ip}
+          onDnq={() => setRoute('dnq')}
+        />
+      )}
+
       {route === 'chat' && (
-        <div className="chat-layout" onClick={() => { setContextMenu(null); setShowEmojiPanel(false); setHeaderMenuOpen(false); setIsMainMenuOpen(false); setIsSettingsModalOpen(false); setIsSettingsClosing(false); }}>
-          <div className="app-container" style={{ paddingBottom: vkbVisible ? '275px' : '0', transition: 'padding-bottom 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
-            <div className={`sidebar ${activeChatId ? 'hidden' : ''}`}>
-              <div className="sidebar-header">
-                <div className="sidebar-top">
-                  <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setIsMainMenuOpen(true); }}><IconMenu/></button>
-                  <h2 className="sidebar-title">Chats</h2>
-                  <button className="icon-btn" style={{ color: 'var(--text-blue)' }} onClick={(e) => { 
-                    e.stopPropagation();
-                    handleAdminVoiceAuth();
-                  }}><IconPencil/></button>
-                </div>
-                <div className="search-box">
-                  <IconSearch/>
-                  <input type="text" value={search} inputMode="none" onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }} onChange={e=>setSearch(e.target.value)} placeholder="Search" className="search-input" />
-                </div>
-                <div className="tabs"><div className="tab active">All</div><div className="tab">Umarov</div></div>
-              </div>
-
-              <div className={`main-menu-wrapper ${isMainMenuOpen ? 'open' : ''}`}>
-                <div className="main-menu-overlay" onClick={() => { setIsMainMenuOpen(false); setIsSettingsModalOpen(false); setIsSettingsClosing(false); }}></div>
-                <div className="main-menu" onClick={e => e.stopPropagation()}>
-                  <div className="mm-header">
-                    <div className="mm-avatar" style={{background: 'transparent', overflow: 'hidden'}} onClick={(e) => handleViewProfile(e, user.id)}>
-                      <img src={getAvatarImg(user.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                    </div>
-                    <div className="mm-info-row">
-                      <div className="mm-name-col">
-                        <span className="mm-name">{user.nick} {user.role === 'owner' ? '👑' : user.role === 'admin' ? '🛡️' : '🎻'}</span>
-                        <span className="mm-sub">@{user.username}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mm-divider"></div>
-                  <div className="mm-body">
-                    <div className="mm-item" onClick={openProfileModal}>
-                      <span className="mm-icon"><IconUser /></span> Edit Profile
-                    </div>
-                    <div className="mm-item" onClick={() => { setIsSettingsModalOpen(true); }}>
-                      <span className="mm-icon"><IconSettings /></span> Settings
-                    </div>
-                    <div className="mm-item mm-logout" onClick={handleLogOut}>
-                      <span className="mm-icon"><IconLogOut /></span> Log out
-                    </div>
-                  </div>
-                  
-                  {isSettingsModalOpen && <SettingsModal onClose={handleCloseSettings} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} user={user} showToast={showToast} notifPos={notifPos} setNotifPos={setNotifPos} inAppNotifEnabled={inAppNotifEnabled} setInAppNotifEnabled={setInAppNotifEnabled} isClosing={isSettingsClosing} />}
-                </div>
-              </div>
-
-              {isProfileModalOpen && (
-                <div className="pm-overlay" onClick={() => setIsProfileModalOpen(false)}>
-                  <div className="pm-modal" onClick={e => e.stopPropagation()}>
-                    <div className="pm-header">
-                      <h2 className="pm-title">Edit Profile</h2>
-                      <button className="icon-btn" style={{padding:0}} onClick={() => setIsProfileModalOpen(false)}><IconClose/></button>
-                    </div>
-                    <div className="pm-body">
-                      <div>
-                        <span className="pm-avatars-label">Choose Avatar</span>
-                        <div className="pm-avatars">
-                          {['man', 'girl', 'old', 'kpop'].map(av => (
-                            <button
-                              key={av}
-                              className={`pm-avatar-opt ${editProfileData.avatar === av ? 'selected' : ''}`}
-                              onClick={() => setEditProfileData({...editProfileData, avatar: av})}
-                            >
-                              <img src={getAvatarImg(av)} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="pm-inputs">
-                        <input type="text" className="pm-input" placeholder="Nickname" value={editProfileData.nick} onChange={e => setEditProfileData({...editProfileData, nick: e.target.value})} maxLength={20} />
-                        <input type="text" className="pm-input" placeholder="Username" value={editProfileData.username} onChange={e => setEditProfileData({...editProfileData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '')})} maxLength={20} />
-                        <textarea className="pm-input pm-textarea" placeholder="Bio..." value={editProfileData.bio} onChange={e => setEditProfileData({...editProfileData, bio: e.target.value})} maxLength={100} />
-                      </div>
-                    </div>
-                    <div className="pm-footer">
-                      <button className="pm-btn-cancel" onClick={() => setIsProfileModalOpen(false)}>Cancel</button>
-                      <button className="pm-btn-save" onClick={saveProfile}>Save</button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="chat-list">
-                {chatList.length === 0 ? (
-                   <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px', marginTop: '20px'}}>
-                     Hech narsa topilmadi...
+        <div className="chat-layout" style={{ 
+          paddingBottom: vkbVisible ? '275px' : 'env(safe-area-inset-bottom)',
+          transition: 'padding-bottom 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)' 
+        }}>
+          <div className="app-container">
+            {/* Sidebar */}
+            <div className={`sidebar ${activeChatId && window.innerWidth <= 768 ? 'hidden' : ''}`}>
+               <div className="sidebar-header">
+                 <div className="sidebar-top">
+                   <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+                     <div className="icon-btn" onClick={() => setIsMainMenuOpen(true)}>
+                       <IconMenu />
+                     </div>
+                     <span className="sidebar-title">Chats</span>
                    </div>
-                ) : chatList.map(c => {
-                  const hasDraft = c.id !== 'global' && c.id === activeChatId && input.length > 0;
-                  const typists = typingUsers.filter(u => u.chatId === c.id && u.id !== user.id && Date.now() - u.time < 1000);
-                  const isTyping = typists.length > 0;
-                  
-                  return (
-                    <div key={c.id} className={`chat-item ${activeChatId === c.id ? 'active' : ''}`} onClick={() => { setActiveChatId(c.id); setSearch(''); }}>
-                      <div className="chat-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
-                        {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
-                      </div>
-                      <div className="chat-item-content">
-                        <div className="chat-item-top">
-                          <span className="chat-item-name">{c.name} {c.role === 'owner' ? '👑' : c.role === 'admin' ? '🛡️' : ''}</span>
-                          {c.lastMsgObj && <span className="chat-item-time">{new Date(c.lastMsgObj.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
-                        </div>
-                        <div className="chat-item-bottom">
-                          {isTyping ? (
-                            <span className="typing-indicator" style={{color: activeChatId === c.id ? '#fff' : 'var(--text-blue)'}}>typing...</span>
-                          ) : hasDraft ? (
-                            <span className="chat-item-msg" style={{color: '#ef4444'}}>Draft: {input}</span>
-                          ) : (
-                            <span className="chat-item-msg">
-                              {c.lastMsgObj ? (c.lastMsgObj.userId === user.id ? `Siz: ${c.lastMsgObj.type === 'audio' ? 'Ovozli xabar' : c.lastMsgObj.message}` : (c.lastMsgObj.type === 'audio' ? 'Ovozli xabar' : c.lastMsgObj.message)) : c.members}
-                            </span>
-                          )}
-                          {c.unread > 0 && <span className="chat-badge">{c.unread}</span>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className={`chat-area ${!activeChatId ? 'hidden' : ''}`} style={chatAreaStyle}>
-              {activeChatId && (
-                <>
-                  <div className="chat-header" onClick={() => {
-                     if(activeChatDetails && !activeChatDetails.isGroup) handleViewProfile({stopPropagation:()=>{}}, activeChatId);
-                  }}>
-                    <div className="header-left">
-                      <button className="back-btn" onClick={(e) => { e.stopPropagation(); setActiveChatId(null); }}><IconChevronLeft/></button>
-                      <div className="header-info">
-                        <div className="header-avatar" style={{background: activeChatDetails.avatarType ? 'transparent' : activeChatDetails.avatarColor}}>
-                          {activeChatDetails.avatarType ? <img src={getAvatarImg(activeChatDetails.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : activeChatDetails.avatarText}
-                        </div>
-                        <div className="header-text">
-                          <h3 className="header-title">{activeChatDetails.name} {activeChatDetails.role === 'owner' ? '👑' : activeChatDetails.role === 'admin' ? '🛡️' : ''}</h3>
-                          <p className="header-subtitle">{subtitleText}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{position: 'relative'}}>
-                      <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setHeaderMenuOpen(!headerMenuOpen); }}><IconMore/></button>
-                      {headerMenuOpen && (
-                        <div className="header-dropdown">
-                          <div className="header-dropdown-item" onClick={handleChangeWallpaper} style={{color: 'var(--text-main)'}}><IconImage/> Change Wallpaper</div>
-                          <div className="header-dropdown-item" onClick={handleClearAll}><IconTrash/> Clear History</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {pinnedMessage && (
-                    <div className="pinned-bar" onClick={() => handleReplyClick({stopPropagation:()=>{}}, pinnedMessage.id)}>
-                      <div className="pinned-line"></div>
-                      <div className="pinned-content">
-                        <h4 className="pinned-title">Pinned Message</h4>
-                        <p className="pinned-text">{pinnedMessage.type === 'audio' ? 'Ovozli xabar' : pinnedMessage.message}</p>
-                      </div>
-                      <button className="icon-btn" style={{padding:'4px'}} onClick={(e) => {
-                        e.stopPropagation();
-                        fetch(`${MOCK_API_URL}/${pinnedMessage.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...pinnedMessage, isPinned: false }) }).then(fetchMessages);
-                      }}><IconClose/></button>
-                    </div>
-                  )}
-
-                  <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
-                    {activeMessages.slice(Math.max(0, activeMessages.length - renderLimit)).map((msg, idx, visibleMessages) => {
-                      const isMe = msg.userId === user.id;
-                      const showDate = idx === 0 || new Date(msg.timestamp).toLocaleDateString() !== new Date(visibleMessages[idx - 1].timestamp).toLocaleDateString();
-                      const seenCount = (msg.seenBy || []).length;
-                      const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0;
-                      
-                      let msgVibeClass = '';
-                      if (msg.role === 'owner') msgVibeClass = 'owner-vibe';
-                      else if (msg.role === 'admin') msgVibeClass = 'admin-vibe';
-                      
-                      const nameColor = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][msg.userId.length % 6];
-
-                      const renderBadge = (u) => {
-                        if (u.badgeIcon === 'star') return <span style={{color:'#f59e0b'}} className="user-badge"><IconStar/></span>;
-                        if (u.badgeIcon === 'diamond') return <span style={{color:'#3b82f6'}} className="user-badge"><IconDiamond/></span>;
-                        if (u.badgeIcon === 'fire') return <span style={{color:'#ef4444'}} className="user-badge"><IconFire/></span>;
-                        if (u.badgeIcon === 'shield') return <span style={{color:'#10b981'}} className="user-badge"><IconShield/></span>;
-                        return null;
-                      };
-
-                      return (
-                        <React.Fragment key={`${msg.userId}_${msg.timestamp}`}>
-                          {showDate && <div style={{width:'100%', display:'flex', justifyContent:'center'}}><div className="date-separator">{new Date(msg.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}</div></div>}
-                          
-                          <div id={`msg-container-${msg.id}`} className="msg-row-container">
-                            
-                            <div className="msg-swipe-bg">
-                              <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}>
-                                <IconReply />
-                              </div>
-                            </div>
-                            
-                            <div className="msg-row-content" id={`swipe-content-${msg.id}`}
-                                 onTouchStart={(e) => handleTouchStart(e, msg.id)}
-                                 onTouchMove={(e) => handleTouchMove(e, msg.id)}
-                                 onTouchEnd={(e) => handleTouchEnd(e, msg)}>
-                                 
-                              <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
-                                <div className="msg-wrap">
-                                  {!isMe && activeChatDetails.isGroup && (
-                                    <div className="msg-avatar-small" style={{background: msg.avatar ? 'transparent' : nameColor, overflow: 'hidden', cursor: 'pointer'}} onClick={(e) => handleViewProfile(e, msg.userId)}>
-                                      {msg.avatar ? <img src={getAvatarImg(msg.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : msg.nickname.charAt(0).toUpperCase()}
-                                    </div>
-                                  )}
-                                  <div 
-                                    className={`msg-bubble ${contextMenu?.msg.id === msg.id ? 'selected' : ''} ${msgVibeClass}`} 
-                                    onContextMenu={(e) => handleContextMenu(e, msg)}
-                                    onDoubleClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setTimeout(()=>inputRef.current?.focus(), 100); }}
-                                  >
-                                    {!isMe && activeChatDetails.isGroup && (
-                                        <span className="msg-nick" style={{color: nameColor, fontSize: '13px', fontWeight: '600', marginBottom: '4px', display:'flex', alignItems:'center', flexWrap:'wrap', gap:'4px'}}>
-                                           {msg.nickname} 
-                                           {msg.role === 'owner' && '👑'} 
-                                           {msg.role === 'admin' && '🛡️'}
-                                           {msg.customTitle && <span style={{fontSize:'10px', background:'rgba(0,0,0,0.1)', padding:'2px 4px', borderRadius:'4px', color:msg.titleColor||'currentColor'}}>{msg.customTitle}</span>}
-                                           {renderBadge(msg)}
-                                        </span>
-                                    )}
-                                    
-                                    {msg.forwardedFrom && (
-                                      <div className="msg-forwarded">Forwarded from {msg.forwardedFrom}</div>
-                                    )}
-
-                                    {msg.replyToId && messages.find(m => m.id === msg.replyToId) && (
-                                      <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, msg.replyToId)}>
-                                        <p className="msg-reply-name">{messages.find(m => m.id === msg.replyToId).nickname}</p>
-                                        <p className="msg-reply-text">{messages.find(m => m.id === msg.replyToId).type === 'audio' ? 'Ovozli xabar' : messages.find(m => m.id === msg.replyToId).message}</p>
-                                      </div>
-                                    )}
-                                    
-                                    {msg.type === 'audio' ? (
-                                      <AudioBubble audioId={msg.message} isMe={isMe} />
-                                    ) : (
-                                      <MessageFormatter text={msg.message} />
-                                    )}
-                                    
-                                    <div className="msg-footer">
-                                      <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                      {isMe && <span className="msg-status">{msg.isPending ? <IconClock color="currentColor" /> : (seenCount > 1 ? <IconDoubleCheck color="currentColor" /> : <IconCheck color="currentColor" />)}</span>}
-                                    </div>
-
-                                    {hasReactions && (
-                                      <div className="msg-reactions">
-                                        {Object.entries(msg.reactions).map(([emoji, users]) => (
-                                          <div key={emoji} className={`react-pill ${users.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); setTimeout(() => handleReaction(emoji), 0); }}>
-                                            {emoji} <span style={{fontSize:'11px', fontWeight:'600', marginLeft:'2px'}}>{users.length}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </React.Fragment>
-                      );
-                    })}
-                    <div ref={messagesEndRef} style={{height: '1px'}} />
-                  </div>
-
-                  {replyingTo && (
-                    <div className="reply-preview-bar">
-                      <div className="pinned-line"></div>
-                      <div style={{flex: 1, overflow: 'hidden'}}>
-                        <h4 className="pinned-title">Replying to {replyingTo.nickname}</h4>
-                        <p className="pinned-text">{replyingTo.type === 'audio' ? 'Ovozli xabar' : replyingTo.message}</p>
-                      </div>
-                      <button className="icon-btn" onClick={() => setReplyingTo(null)}><IconClose/></button>
-                    </div>
-                  )}
-
-                  <form className="chat-input-area" onSubmit={handleSend}>
-                    <div className="icon-btn" style={{padding: '6px', marginBottom: '2px', color: 'var(--text-icon)'}} onClick={() => setRoute('admin')}>
-                      <IconClip/>
-                    </div>
-                    
-                    <div className={`chat-input-wrapper ${isSendingAnim ? 'sending' : ''}`}>
-                      <textarea
-                        ref={inputRef}
-                        className="chat-input"
-                        placeholder="Message..."
-                        value={input}
-                        inputMode="none"
-                        rows={1}
-                        onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }}
-                        onChange={(e) => { 
-                          setInput(e.target.value); 
-                          handleTyping(e.target.value); 
-                          e.target.style.height = 'auto'; 
-                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; 
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                            e.target.style.height = 'auto';
-                          }
-                        }}
-                      />
-                      <button type="button" className="icon-btn desktop-only-btn" style={{marginBottom:'4px', padding:'6px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
-                        <IconSmile />
-                      </button>
-                    </div>
-                    
-                    {input.trim() || isSendingAnim || editingId ? (
-                      <button type="submit" className={`send-btn-circle ${isSendingAnim ? 'sending' : ''}`} disabled={isSendingAnim}>
-                        <IconArrowUp />
-                      </button>
-                    ) : (
-                      <div className="desktop-only-btn" style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                        {isRecording ? (
-                          <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'6px 16px', gap:'12px', height:'38px', animation:'fadeIn 0.2s', marginBottom:'0px'}}>
-                             <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'6px'}}>
-                               <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#fff'}}></div>
-                               {recordingTime}s
-                             </div>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={cancelRecording}><IconTrash/></button>
-                             <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={stopRecording}><IconArrowUp/></button>
-                          </div>
-                        ) : (
-                          <button type="button" className="icon-btn" style={{color:'var(--text-blue)', padding:'6px', marginBottom:'2px'}} onClick={startRecording}>
-                            <IconMic />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </form>
-                </>
-              )}
-            </div>
-
-            {showEmojiPanel && (
-              <div className="emoji-panel-container" onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
-                <div className="emoji-panel-title">Smileys</div>
-                <div className="emoji-grid" style={{marginBottom:'8px'}}>
-                  {EMOJIS.map(emoji => (
-                    <button type="button" key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)} style={{background:'transparent', border:'none'}}>{emoji}</button>
-                  ))}
-                </div>
-                <div className="emoji-panel-title">Aura & Objects</div>
-                <div className="emoji-grid">
-                  {AURA_EMOJIS.map(emoji => (
-                    <button type="button" key={emoji} className="aura-emoji" onClick={() => setInput(prev => prev + emoji)} style={{background:'transparent', border:'none'}}>{emoji}</button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {contextMenu && contextMenu.visible && (
-              <>
-                <div className="context-overlay" onClick={() => setContextMenu(null)}></div>
-                <div className="context-container" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                  <div className="cm-reactions">
-                    {EMOJIS.map(emoji => (
-                      <button type="button" key={emoji} className="cm-reaction" onClick={() => handleReaction(emoji)} style={{border:'none', background:'transparent'}}>{emoji}</button>
-                    ))}
-                  </div>
-                  <div className="context-menu">
-                    <div className="cm-item" onClick={() => executeAction('reply')}><IconReply/> Reply</div>
-                    <div className="cm-item" onClick={() => executeAction('copy')}><IconCopy/> Copy Text</div>
-                    <div className="cm-item" onClick={() => executeAction('forward')}><IconForward/> Forward</div>
-                    <div className="cm-item" onClick={() => executeAction('pin')}><IconPin/> {contextMenu.msg.isPinned ? 'Unpin' : 'Pin'}</div>
-                    <div className="cm-item" onClick={() => executeAction('info')}><IconInfo/> Info</div>
-                    {(contextMenu.msg.userId === user.id || user.role === 'admin' || user.role === 'owner') && (
-                      <div className="cm-item" onClick={() => executeAction('edit')}><IconEdit/> Edit</div>
-                    )}
-                    {(contextMenu.msg.userId === user.id || user.role === 'admin' || user.role === 'owner') && (
-                      <div className="cm-item danger" onClick={() => executeAction('delete')}><IconTrash/> Delete</div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {infoModal && (
-              <div className="info-modal-overlay" onClick={() => setInfoModal(null)}>
-                <div className="info-modal" onClick={e => e.stopPropagation()}>
-                  <div className="info-header">
-                    <span className="info-title">Message Info</span>
-                    <button className="icon-btn" style={{padding:4}} onClick={() => setInfoModal(null)}><IconClose/></button>
-                  </div>
-                  <div className="info-body">
-                    <div className="info-row">
-                      <div className="info-avatar" style={{background: 'var(--text-blue)'}}><IconCheck color="#fff"/></div>
-                      <div className="info-details">
-                        <div className="info-name">Sent</div>
-                        <div className="info-sub">{new Date(infoModal.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</div>
-                      </div>
-                    </div>
-                    {(infoModal.seenBy || []).map((s, i) => (
-                      <div className="info-row" key={i}>
-                        <div className="info-avatar" style={{background: s.avatar && s.avatar.startsWith('http') ? 'transparent' : 'var(--text-blue)'}}>
-                          {s.avatar && s.avatar.startsWith('http') ? <img src={s.avatar} style={{width:'100%', height:'100%', objectFit:'cover'}}/> : s.nick.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="info-details">
-                          <div className="info-name">{s.nick}</div>
-                          <div className="info-sub">Read</div>
-                        </div>
-                        <div className="info-right"><IconDoubleCheck color="var(--text-blue)" /></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {forwardModal && (
-              <div className="info-modal-overlay" onClick={() => setForwardModal(null)}>
-                <div className="info-modal" onClick={e => e.stopPropagation()}>
-                  <div className="info-header">
-                    <span className="info-title">Forward to...</span>
-                    <button className="icon-btn" style={{padding:4}} onClick={() => setForwardModal(null)}><IconClose/></button>
-                  </div>
-                  <div className="info-body">
-                    {chatList.map(c => (
-                      <div className="info-row" key={c.id} style={{cursor:'pointer'}} onClick={() => handleForwardTarget(c.id)}>
-                        <div className="info-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
-                          {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}}/> : c.avatarText}
-                        </div>
-                        <div className="info-details">
-                          <div className="info-name">{c.name}</div>
-                        </div>
-                        <div className="info-right"><IconSend /></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {viewProfileUser && (
-               <div className="upm-overlay" onClick={() => setViewProfileUser(null)}>
-                 <div className="upm-card" onClick={e => e.stopPropagation()}>
-                   <button className="upm-close" onClick={() => setViewProfileUser(null)}><IconClose/></button>
-                   {viewProfileUser.loading ? (
-                     <div style={{padding:'40px', display:'flex', justifyContent:'center'}}><div className="spinner"></div></div>
-                   ) : (
-                     <>
-                        <div className="upm-top">
-                           <div className="upm-avatar">
-                             {viewProfileUser.avatar ? <img src={getAvatarImg(viewProfileUser.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : viewProfileUser.name.charAt(0).toUpperCase()}
-                           </div>
-                           <h2 className="upm-name">
-                             {viewProfileUser.name}
-                             {viewProfileUser.role === 'owner' && '👑'}
-                             {viewProfileUser.role === 'admin' && '🛡️'}
-                           </h2>
-                           <p className="upm-status">
-                             {Date.now() - new Date(viewProfileUser.lastActive).getTime() < 60000 
-                               ? <span style={{color: '#53bdeb'}}>online</span> 
-                               : `last seen at ${new Date(viewProfileUser.lastActive).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`}
-                           </p>
-                           <div className="upm-actions">
-                             <button className="upm-btn" onClick={() => { setActiveChatId(viewProfileUser.id); setViewProfileUser(null); }}>
-                               <IconMessageSquare/> <span>Message</span>
-                             </button>
-                             <button className="upm-btn" onClick={() => toggleMute(viewProfileUser.id)}>
-                               {mutedUsers.includes(viewProfileUser.id) ? <IconBell/> : <IconBellOff/>} 
-                               <span>{mutedUsers.includes(viewProfileUser.id) ? 'Unmute' : 'Mute'}</span>
-                             </button>
-                           </div>
-                        </div>
-                        <div className="upm-bottom">
-                           <div className="upm-info-item">
-                             <p className="upm-info-val">{viewProfileUser.bio || 'Web Developer ⚡'}</p>
-                             <p className="upm-info-lbl">Bio</p>
-                           </div>
-                           {viewProfileUser.username && (
-                               <div className="upm-info-item">
-                                 <p className="upm-info-val" style={{color: '#53bdeb'}}>@{viewProfileUser.username}</p>
-                                 <p className="upm-info-lbl">Username</p>
-                               </div>
-                           )}
-                        </div>
-                     </>
-                   )}
+                   <button className="icon-btn" onClick={() => {}}><IconEdit /></button>
+                 </div>
+                 <div className="search-box">
+                   <IconSearch/>
+                   <input 
+                     type="text" 
+                     value={search} 
+                     inputMode="none" 
+                     onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }} 
+                     onChange={e=>setSearch(e.target.value)} 
+                     placeholder="Search" 
+                     className="search-input" 
+                   />
+                 </div>
+                 <div className="tabs">
+                   <div className="tab active">All</div>
+                   <div className="tab">Umarov</div>
                  </div>
                </div>
-            )}
 
-            {showSwitcher && chatList.length > 0 && (
-              <div className="chat-switcher-overlay">
-                <div className="chat-switcher-box">
-                  {chatList.map((c, idx) => (
-                    <div 
-                      key={'sw-'+c.id} 
-                      id={`sw-item-${idx}`}
-                      className={`switcher-item ${idx === switcherIndex ? 'active' : ''}`}
-                      onClick={() => {
-                        setActiveChatId(c.id);
-                        setShowSwitcher(false);
-                        isSwitcherOpenRef.current = false;
-                      }}
-                    >
-                      <div className="switcher-avatar" style={{background: c.avatarType ? 'transparent' : c.avatarColor}}>
-                        {c.avatarType ? <img src={getAvatarImg(c.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : c.avatarText}
-                      </div>
-                      <span className="switcher-name">{c.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+               <div className="chat-list">
+                 {chatList.length === 0 && <div style={{textAlign:'center', marginTop:'20px', color:'var(--text-icon)', fontSize:'14px'}}>Hech narsa topilmadi...</div>}
+                 {chatList.map(chat => (
+                   <div key={chat.id} className={`chat-item ${activeChatId === chat.id ? 'active' : ''}`} onClick={() => { setActiveChatId(chat.id); setSearch(''); }}>
+                     <div className="chat-avatar" style={{background: chat.avatarType && chat.avatarType.includes('http') ? 'transparent' : chat.avatarColor}}>
+                       {chat.avatarType && chat.avatarType !== 'man' && chat.avatarType !== 'girl' && chat.avatarType !== 'old' && chat.avatarType !== 'kpop' ? 
+                         <img src={getAvatarImg(chat.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                         chat.avatarText
+                       }
+                     </div>
+                     <div className="chat-item-content">
+                       <div className="chat-item-top">
+                         <span className="chat-item-name" style={{color: chat.role === 'owner' ? '#fbbf24' : (chat.role === 'admin' ? '#10b981' : '')}}>
+                           {chat.name} {chat.role === 'owner' && <IconCrown />} {chat.role === 'admin' && <IconShield />}
+                         </span>
+                         {chat.lastMsgObj && <span className="chat-item-time">{new Date(chat.lastMsgObj.timestamp).toLocaleTimeString([],{hour:'2-digit', minute:'2-digit'})}</span>}
+                       </div>
+                       <div className="chat-item-bottom">
+                         <span className="chat-item-msg">
+                           {typingUsers.some(u => u.chatId === chat.id && u.id !== user.id && Date.now() - u.time < 1000) ? 
+                             <span className="typing-indicator" style={{color:'var(--text-blue)'}}>yozmoqda...</span> : 
+                             (chat.lastMsgObj ? (chat.lastMsgObj.type === 'audio' ? '🎤 Ovozli xabar' : chat.lastMsgObj.message) : 'Xabar yo\'q')
+                           }
+                         </span>
+                         {chat.unread > 0 && <span className="chat-badge">{chat.unread}</span>}
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+            </div>
 
+            {/* Chat Area */}
+            <div className={`chat-area ${!activeChatId && window.innerWidth <= 768 ? 'hidden' : ''}`} style={chatAreaStyle}>
+               {activeChatId ? (
+                 <>
+                   <div className="chat-header">
+                     <div className="header-left">
+                       <button className="back-btn" onClick={() => setActiveChatId(null)}>
+                         <IconChevronLeft />
+                       </button>
+                       <div className="header-info" onClick={(e) => handleViewProfile(e, activeChatId)}>
+                         <div className="header-avatar" style={{background: activeChatDetails?.avatarType && activeChatDetails?.avatarType.includes('http') ? 'transparent' : (activeChatDetails?.avatarColor || 'var(--text-blue)')}}>
+                           {activeChatDetails?.avatarType && activeChatDetails?.avatarType !== 'man' && activeChatDetails?.avatarType !== 'girl' && activeChatDetails?.avatarType !== 'old' && activeChatDetails?.avatarType !== 'kpop' ? 
+                             <img src={getAvatarImg(activeChatDetails?.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                             (activeChatDetails?.avatarText || 'U')
+                           }
+                         </div>
+                         <div className="header-text">
+                           <h3 className="header-title" style={{color: activeChatDetails?.role === 'owner' ? '#fbbf24' : (activeChatDetails?.role === 'admin' ? '#10b981' : 'var(--text-main)')}}>
+                             {activeChatDetails?.name || 'Chat'} {activeChatDetails?.role === 'owner' && <IconCrown />} {activeChatDetails?.role === 'admin' && <IconShield />}
+                           </h3>
+                           <p className="header-subtitle">{subtitleText}</p>
+                         </div>
+                       </div>
+                     </div>
+                     <div style={{position:'relative'}}>
+                       <button className="icon-btn" onClick={() => setHeaderMenuOpen(!headerMenuOpen)}><IconMore /></button>
+                       {headerMenuOpen && (
+                         <>
+                           <div style={{position:'fixed',inset:0,zIndex:99}} onClick={()=>setHeaderMenuOpen(false)}></div>
+                           <div className="header-dropdown">
+                             <div className="header-dropdown-item" style={{color:'var(--text-main)'}} onClick={handleChangeWallpaper}>
+                               <IconImage /> Fonni o'zgartirish
+                             </div>
+                             <div className="header-dropdown-item" onClick={handleClearAll}>
+                               <IconTrash /> Chatni tozalash
+                             </div>
+                             {activeChatId !== 'global' && (
+                               <div className="header-dropdown-item" style={{color: mutedUsers.includes(activeChatId) ? '#34c759' : '#ff3b30'}} onClick={() => { toggleMute(activeChatId); setHeaderMenuOpen(false); }}>
+                                 {mutedUsers.includes(activeChatId) ? <><IconBell/> Ovozni yoqish</> : <><IconBellOff/> Ovozsiz qilish</>}
+                               </div>
+                             )}
+                           </div>
+                         </>
+                       )}
+                     </div>
+                   </div>
+
+                   {pinnedMessage && (
+                     <div className="pinned-bar" onClick={(e) => handleReplyClick(e, pinnedMessage.id)}>
+                       <div className="pinned-line"></div>
+                       <div className="pinned-content">
+                         <h4 className="pinned-title">Qadalgan xabar</h4>
+                         <p className="pinned-text">{pinnedMessage.type === 'audio' ? 'Ovozli xabar' : pinnedMessage.message}</p>
+                       </div>
+                       <button className="icon-btn" onClick={(e) => { e.stopPropagation(); executeAction('pin'); setContextMenu({msg: pinnedMessage}); }}><IconClose/></button>
+                     </div>
+                   )}
+
+                   <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
+                     {activeMessages.slice(-renderLimit).map((msg, idx, arr) => {
+                       const prev = arr[idx - 1];
+                       const isMe = msg.userId === user.id;
+                       const showSender = !isMe && (!prev || prev.userId !== msg.userId || new Date(msg.timestamp) - new Date(prev.timestamp) > 300000);
+                       const dObj = new Date(msg.timestamp);
+                       const tStr = dObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                       
+                       let showDate = false;
+                       if (!prev) showDate = true;
+                       else {
+                         const d1 = new Date(prev.timestamp).setHours(0,0,0,0);
+                         const d2 = new Date(msg.timestamp).setHours(0,0,0,0);
+                         if (d1 !== d2) showDate = true;
+                       }
+                       const dateStr = dObj.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+
+                       let vibeClass = '';
+                       if (msg.role === 'owner') vibeClass = 'owner-vibe';
+                       else if (msg.role === 'admin') vibeClass = 'admin-vibe';
+
+                       return (
+                         <React.Fragment key={msg.id}>
+                           {showDate && <div className="date-separator">{dateStr}</div>}
+                           
+                           <div id={`msg-container-${msg.id}`} className="msg-row-container">
+                             <div className="msg-swipe-bg" id={`swipe-bg-${msg.id}`}>
+                               <div className="msg-swipe-icon" id={`swipe-icon-${msg.id}`}><IconReply /></div>
+                             </div>
+                             
+                             <div 
+                               className="msg-row-content" 
+                               id={`swipe-content-${msg.id}`}
+                               onTouchStart={(e) => handleTouchStart(e, msg.id)}
+                               onTouchMove={(e) => handleTouchMove(e, msg.id)}
+                               onTouchEnd={(e) => handleTouchEnd(e, msg)}
+                             >
+                               <div className={`msg-row ${isMe ? 'me' : 'other'}`}>
+                                 <div className="msg-wrap">
+                                   {!isMe && (
+                                     <div className="msg-avatar-small" style={{background: 'var(--text-blue)', opacity: showSender ? 1 : 0}} onClick={(e) => handleViewProfile(e, msg.userId)}>
+                                       {msg.avatar && msg.avatar !== 'man' && msg.avatar !== 'girl' && msg.avatar !== 'old' && msg.avatar !== 'kpop' ? 
+                                         <img src={getAvatarImg(msg.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                                         msg.nickname.substring(0,2).toUpperCase()
+                                       }
+                                     </div>
+                                   )}
+                                   <div 
+                                      className={`msg-bubble ${contextMenu?.msg?.id === msg.id ? 'selected' : ''} ${vibeClass}`} 
+                                      onContextMenu={(e) => handleContextMenu(e, msg)} 
+                                      onDoubleClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setTimeout(()=>inputRef.current?.focus(), 100); }}
+                                   >
+                                     {showSender && <div className="msg-sender msg-nick" style={{color: isMe ? 'var(--msg-me-text)' : 'var(--text-blue)'}}>{msg.nickname}</div>}
+                                     
+                                     {msg.replyToId && messages.find(m => m.id === msg.replyToId) && (
+                                       <div className="msg-reply-box" onClick={(e) => handleReplyClick(e, msg.replyToId)}>
+                                         <p className="msg-reply-name">{messages.find(m => m.id === msg.replyToId).nickname}</p>
+                                         <p className="msg-reply-text">{messages.find(m => m.id === msg.replyToId).type === 'audio' ? 'Ovozli xabar' : messages.find(m => m.id === msg.replyToId).message}</p>
+                                       </div>
+                                     )}
+
+                                     {msg.forwardedFrom && (
+                                       <div className="msg-forwarded">
+                                         <IconForward /> {msg.forwardedFrom} dan yo'naltirildi
+                                       </div>
+                                     )}
+
+                                     {msg.type === 'audio' ? (
+                                       <AudioBubble audioId={msg.message} isMe={isMe} />
+                                     ) : (
+                                       <MessageFormatter text={msg.message} />
+                                     )}
+                                     
+                                     <div className="msg-footer">
+                                       <span className="msg-time">{tStr}</span>
+                                       {isMe && (
+                                         <span className="msg-status">
+                                            {msg.isPending ? <IconClock color="var(--msg-me-time)" /> : (msg.seenBy?.length > 1 ? <IconDoubleCheck color="#34c759" /> : <IconCheck color="var(--msg-me-time)" />)}
+                                         </span>
+                                       )}
+                                     </div>
+
+                                     {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                                       <div className="msg-reactions">
+                                         {Object.entries(msg.reactions).map(([emoji, usersArr]) => (
+                                           <div key={emoji} className={`react-pill ${usersArr.some(u => u.id === user.id) ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setContextMenu({msg}); setTimeout(() => handleReaction(emoji), 0); }}>
+                                             {emoji} <span style={{fontSize:'11px', marginLeft:'2px'}}>{usersArr.length}</span>
+                                           </div>
+                                         ))}
+                                       </div>
+                                     )}
+                                   </div>
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+                         </React.Fragment>
+                       );
+                     })}
+                     <div ref={messagesEndRef} style={{height:'1px'}} />
+                   </div>
+
+                   {replyingTo && (
+                     <div className="reply-preview-bar">
+                       <div className="pinned-line"></div>
+                       <div style={{flex: 1, overflow: 'hidden'}}>
+                         <h4 className="pinned-title">Replying to {replyingTo.nickname}</h4>
+                         <p className="pinned-text">{replyingTo.type === 'audio' ? 'Ovozli xabar' : replyingTo.message}</p>
+                       </div>
+                       <button className="icon-btn" onClick={() => setReplyingTo(null)}><IconClose/></button>
+                     </div>
+                   )}
+
+                   <form className="chat-input-area" onSubmit={handleSend}>
+                     <div className="icon-btn" style={{padding: '6px', marginBottom: '2px', color: 'var(--text-icon)'}} onClick={() => setRoute('admin')}>
+                       <IconClip/>
+                     </div>
+                     
+                     <div className={`chat-input-wrapper ${isSendingAnim ? 'sending' : ''}`}>
+                       <textarea
+                         ref={inputRef}
+                         className="chat-input"
+                         placeholder="Message..."
+                         value={input}
+                         inputMode="none"
+                         rows={1}
+                         onClick={(e) => { setVkbTarget(e.target); setVkbVisible(true); }}
+                         onChange={(e) => { 
+                           setInput(e.target.value); 
+                           handleTyping(e.target.value); 
+                           e.target.style.height = 'auto'; 
+                           e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; 
+                         }}
+                         onKeyDown={(e) => {
+                           if (e.key === 'Enter' && !e.shiftKey) {
+                             e.preventDefault();
+                             handleSend();
+                             e.target.style.height = 'auto';
+                           }
+                         }}
+                       />
+                       <button type="button" className="icon-btn desktop-only-btn" style={{marginBottom:'4px', padding:'6px', color:'var(--text-icon)'}} onClick={handleEmojiEnter} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+                         <IconSmile />
+                       </button>
+                     </div>
+                     
+                     {input.trim() || isSendingAnim || editingId ? (
+                       <button type="submit" className={`send-btn-circle ${isSendingAnim ? 'sending' : ''}`} disabled={isSendingAnim}>
+                         <IconArrowUp />
+                       </button>
+                     ) : (
+                       <div className="desktop-only-btn" style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                         {isRecording ? (
+                           <div style={{display:'flex', alignItems:'center', background:'#ef4444', borderRadius:'24px', padding:'6px 16px', gap:'12px', height:'38px', animation:'fadeIn 0.2s', marginBottom:'0px'}}>
+                              <div className="typing-indicator" style={{color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'6px'}}>
+                                <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#fff'}}></div>
+                                {recordingTime}s
+                              </div>
+                              <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={cancelRecording}><IconTrash/></button>
+                              <button type="button" className="icon-btn" style={{color:'#fff', padding:'4px', width:'28px', height:'28px'}} onClick={stopRecording}><IconArrowUp/></button>
+                           </div>
+                         ) : (
+                           <button type="button" className="icon-btn" style={{color:'var(--text-blue)', padding:'6px', marginBottom:'2px'}} onClick={startRecording}>
+                             <IconMic />
+                           </button>
+                         )}
+                       </div>
+                     )}
+                   </form>
+                 </>
+               ) : (
+                 <div className="screen-center">
+                   <div className="icon-btn" style={{width:'100px',height:'100px',background:'var(--bg-input)',marginBottom:'20px'}}>
+                     <IconMessageSquare />
+                   </div>
+                   <h2 style={{color:'var(--text-main)', margin:'0 0 10px 0'}}>WebChat'ga Xush Kelibsiz</h2>
+                   <p style={{color:'var(--text-muted)', maxWidth:'300px', textAlign:'center'}}>Chatlashish uchun chap paneldan biror kishini tanlang yoki Global Chatga ulaning.</p>
+                 </div>
+               )}
+            </div>
           </div>
         </div>
       )}
+
+      {/* Admin Route */}
       {route === 'admin' && <AdminPanel onClose={() => setRoute('chat')} currentUser={user} showToast={showToast} customConfirm={customConfirm} />}
-      
+
+      {/* Main Menu Sidebar */}
+      <div className={`main-menu-wrapper ${isMainMenuOpen ? 'open' : ''}`}>
+        <div className="main-menu-overlay" onClick={() => setIsMainMenuOpen(false)}></div>
+        <div className="main-menu">
+          <div className="mm-header">
+             <div className="mm-avatar" style={{background: 'var(--text-blue)'}}>
+                {user.avatar && user.avatar !== 'man' && user.avatar !== 'girl' && user.avatar !== 'old' && user.avatar !== 'kpop' ? 
+                  <img src={getAvatarImg(user.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                  user.nick.substring(0,2).toUpperCase()
+                }
+             </div>
+             <div className="mm-info-row" onClick={openProfileModal}>
+               <div className="mm-name-col">
+                 <span className="mm-name">{user.nick}</span>
+                 <span className="mm-sub">@{user.username}</span>
+               </div>
+               <IconChevronDown />
+             </div>
+          </div>
+          <div className="mm-divider"></div>
+          <div className="mm-body">
+            <div className="mm-item" onClick={() => { setIsMainMenuOpen(false); setIsSettingsModalOpen(true); }}>
+              <div className="mm-icon"><IconSettings /></div> Settings
+            </div>
+            {user.role === 'owner' && (
+              <div className="mm-item" onClick={() => { setIsMainMenuOpen(false); handleAdminVoiceAuth(); }}>
+                <div className="mm-icon"><IconLock /></div> Admin Panel (Ovozli)
+              </div>
+            )}
+            <div className="mm-item mm-logout" onClick={handleLogOut}>
+              <div className="mm-icon"><IconLogOut /></div> Log Out
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Edit Modal */}
+      {isProfileModalOpen && (
+        <div className="pm-overlay" onClick={() => setIsProfileModalOpen(false)}>
+          <div className="pm-modal" onClick={e => e.stopPropagation()}>
+            <div className="pm-header">
+              <h2 className="pm-title">Profilni Tahrirlash</h2>
+              <button className="icon-btn" onClick={() => setIsProfileModalOpen(false)}><IconClose/></button>
+            </div>
+            <div className="pm-body">
+              <div>
+                <span className="pm-avatars-label">Avatarni tanlang:</span>
+                <div className="pm-avatars">
+                  {['man', 'girl', 'old', 'kpop'].map(av => (
+                    <div 
+                      key={av} 
+                      className={`pm-avatar-opt ${editProfileData.avatar === av ? 'selected' : ''}`}
+                      onClick={() => setEditProfileData({...editProfileData, avatar: av})}
+                    >
+                      <img src={getAvatarImg(av)} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="pm-inputs">
+                <input type="text" className="pm-input" placeholder="Ismingiz (Nickname)" value={editProfileData.nick} onChange={e => setEditProfileData({...editProfileData, nick: e.target.value})} maxLength={20} />
+                <input type="text" className="pm-input" placeholder="Username (@...)" value={editProfileData.username} onChange={e => setEditProfileData({...editProfileData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '')})} maxLength={20} />
+                <textarea className="pm-input pm-textarea" placeholder="O'zingiz haqingizda (Bio)..." value={editProfileData.bio} onChange={e => setEditProfileData({...editProfileData, bio: e.target.value})} maxLength={100} />
+              </div>
+            </div>
+            <div className="pm-footer">
+              <button className="pm-btn-cancel" onClick={() => setIsProfileModalOpen(false)}>Bekor qilish</button>
+              <button className="pm-btn-save" onClick={saveProfile}>Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal Component Render */}
+      {isSettingsModalOpen && (
+        <SettingsModal 
+          onClose={handleCloseSettings} 
+          isDarkMode={isDarkMode} 
+          setIsDarkMode={setIsDarkMode}
+          user={user}
+          showToast={showToast}
+          notifPos={notifPos}
+          setNotifPos={setNotifPos}
+          inAppNotifEnabled={inAppNotifEnabled}
+          setInAppNotifEnabled={setInAppNotifEnabled}
+          isClosing={isSettingsClosing}
+        />
+      )}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div className="context-overlay" onClick={() => setContextMenu(null)}>
+          <div className="context-container" style={{top: contextMenu.y, left: contextMenu.x}} onClick={e => e.stopPropagation()}>
+             <div className="cm-reactions">
+               {EMOJIS.map(emoji => (
+                 <span key={emoji} className="cm-reaction" onClick={() => handleReaction(emoji)}>{emoji}</span>
+               ))}
+             </div>
+             <div className="context-menu">
+                <button className="cm-item" onClick={() => executeAction('reply')}><span style={{display:'flex',gap:'12px'}}><IconReply /> Reply</span></button>
+                <button className="cm-item" onClick={() => executeAction('copy')}><span style={{display:'flex',gap:'12px'}}><IconCopy /> Copy Text</span></button>
+                <button className="cm-item" onClick={() => executeAction('forward')}><span style={{display:'flex',gap:'12px'}}><IconForward /> Forward</span></button>
+                <button className="cm-item" onClick={() => executeAction('pin')}><span style={{display:'flex',gap:'12px'}}><IconPin /> {contextMenu.msg.isPinned ? 'Unpin' : 'Pin'}</span></button>
+                
+                {(contextMenu.msg.userId === user.id || (user.role === 'admin' && contextMenu.msg.role === 'user') || (user.role === 'owner' && contextMenu.msg.role !== 'owner')) && (
+                  <>
+                    {contextMenu.msg.type !== 'audio' && <button className="cm-item" onClick={() => executeAction('edit')}><span style={{display:'flex',gap:'12px'}}><IconEdit /> Edit</span></button>}
+                    <button className="cm-item danger" onClick={() => executeAction('delete')}><span style={{display:'flex',gap:'12px'}}><IconTrash /> Delete</span></button>
+                  </>
+                )}
+                <button className="cm-item" onClick={() => executeAction('info')}><span style={{display:'flex',gap:'12px'}}><IconInfo /> Info</span></button>
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Emoji Panel */}
+      {showEmojiPanel && (
+        <div className="context-overlay" style={{background: 'transparent'}} onClick={() => setShowEmojiPanel(false)} onMouseEnter={handleEmojiEnter} onMouseLeave={handleEmojiLeave}>
+          <div className="emoji-panel-container" onClick={e => e.stopPropagation()}>
+             <div className="emoji-panel-title">Smileys & People</div>
+             <div className="emoji-grid">
+                {[...new Set([...EMOJIS, ...AURA_EMOJIS])].map((emoji, i) => (
+                  <span key={i} className="aura-emoji" onClick={() => { setInput(prev => prev + emoji); }}>{emoji}</span>
+                ))}
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info Modal */}
+      {infoModal && (
+        <div className="info-modal-overlay" onClick={() => setInfoModal(null)}>
+          <div className="info-modal" onClick={e => e.stopPropagation()}>
+            <div className="info-header">
+              <span className="info-title">Xabar ma'lumotlari</span>
+              <button className="icon-btn" onClick={() => setInfoModal(null)}><IconClose/></button>
+            </div>
+            <div className="info-body">
+              <div className="info-row">
+                <div className="info-avatar" style={{background: '#3b82f6'}}><IconCheck color="#fff" /></div>
+                <div className="info-details"><div className="info-name">Yuborildi</div><div className="info-sub">{new Date(infoModal.timestamp).toLocaleString('uz-UZ')}</div></div>
+              </div>
+              <div style={{padding:'8px 16px', fontWeight:'600', fontSize:'13px', color:'var(--text-muted)'}}>Ko'rganlar ({infoModal.seenBy?.length || 0}):</div>
+              {infoModal.seenBy?.map(u => (
+                <div className="info-row" key={u.id}>
+                  <div className="info-avatar" style={{background:'var(--text-blue)'}}>
+                    {u.avatar && u.avatar.includes('http') ? <img src={getAvatarImg(u.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : (u.nick ? u.nick.substring(0,2).toUpperCase() : 'U')}
+                  </div>
+                  <div className="info-details"><div className="info-name">{u.nick}</div></div>
+                  <div className="info-right"><IconDoubleCheck color="#34c759"/></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Forward Modal */}
+      {forwardModal && (
+        <div className="info-modal-overlay" onClick={() => setForwardModal(null)}>
+          <div className="info-modal" onClick={e => e.stopPropagation()}>
+             <div className="info-header">
+               <span className="info-title">Yo'naltirish</span>
+               <button className="icon-btn" onClick={() => setForwardModal(null)}><IconClose/></button>
+             </div>
+             <div className="info-body">
+               {chatList.map(chat => (
+                 <div className="info-row" key={chat.id} style={{cursor:'pointer'}} onClick={() => handleForwardTarget(chat.id)}>
+                   <div className="info-avatar" style={{background: chat.avatarColor}}>
+                     {chat.avatarType && chat.avatarType !== 'man' && chat.avatarType !== 'girl' && chat.avatarType !== 'old' && chat.avatarType !== 'kpop' ? 
+                       <img src={getAvatarImg(chat.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                       chat.avatarText
+                     }
+                   </div>
+                   <div className="info-details"><div className="info-name">{chat.name}</div></div>
+                   <div className="info-right"><IconForward /></div>
+                 </div>
+               ))}
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Profile Modal (UPM) */}
+      {viewProfileUser && (
+        <div className="upm-overlay" onClick={() => setViewProfileUser(null)}>
+           <div className="upm-card" onClick={e => e.stopPropagation()}>
+              <button className="upm-close" onClick={() => setViewProfileUser(null)}><IconClose /></button>
+              
+              <div className="upm-top">
+                 <div className="upm-avatar">
+                   {viewProfileUser.avatar && viewProfileUser.avatar !== 'man' && viewProfileUser.avatar !== 'girl' && viewProfileUser.avatar !== 'old' && viewProfileUser.avatar !== 'kpop' ? 
+                     <img src={getAvatarImg(viewProfileUser.avatar)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                     (viewProfileUser.name ? viewProfileUser.name.substring(0,2).toUpperCase() : 'U')
+                   }
+                 </div>
+                 <h2 className="upm-name">
+                    {viewProfileUser.name}
+                    {viewProfileUser.role === 'owner' && <IconCrown />}
+                    {viewProfileUser.role === 'admin' && <IconShield />}
+                 </h2>
+                 <p className="upm-status">{viewProfileUser.loading ? 'loading...' : (viewProfileUser.username ? `@${viewProfileUser.username}` : 'online')}</p>
+                 
+                 <div className="upm-actions">
+                    <button className="upm-btn" onClick={() => { setActiveChatId(viewProfileUser.id); setViewProfileUser(null); }}>
+                       <IconMessageSquare />
+                       <span>Message</span>
+                    </button>
+                    <button className="upm-btn">
+                       <IconBell />
+                       <span>Mute</span>
+                    </button>
+                 </div>
+              </div>
+              
+              <div className="upm-bottom">
+                 {viewProfileUser.bio && (
+                   <div className="upm-info-item">
+                     <p className="upm-info-val">{viewProfileUser.bio}</p>
+                     <p className="upm-info-lbl">Bio</p>
+                   </div>
+                 )}
+                 <div className="upm-info-item">
+                   <p className="upm-info-val">@{viewProfileUser.username || 'unknown'}</p>
+                   <p className="upm-info-lbl">Username</p>
+                 </div>
+                 {viewProfileUser.ip && user.role === 'owner' && (
+                   <div className="upm-info-item">
+                     <p className="upm-info-val">{viewProfileUser.ip}</p>
+                     <p className="upm-info-lbl">IP Manzil (Faqat Owner ko'radi)</p>
+                   </div>
+                 )}
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* Chat Switcher Overlay (Ctrl + Tab) */}
+      {showSwitcher && (
+        <div className="chat-switcher-overlay">
+          <div className="chat-switcher-box">
+             {chatListRef.current.map((chat, idx) => (
+                <div key={chat.id} id={`sw-item-${idx}`} className={`switcher-item ${idx === switcherIndex ? 'active' : ''}`}>
+                   <div className="switcher-avatar" style={{background: chat.avatarColor}}>
+                     {chat.avatarType && chat.avatarType !== 'man' && chat.avatarType !== 'girl' && chat.avatarType !== 'old' && chat.avatarType !== 'kpop' ? 
+                       <img src={getAvatarImg(chat.avatarType)} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : 
+                       chat.avatarText
+                     }
+                   </div>
+                   <span className="switcher-name">{chat.name}</span>
+                </div>
+             ))}
+          </div>
+        </div>
+      )}
+
       {/* VIRTUAL KEYBOARD FOR MOBILE - Professional & Optimized */}
       <div className={`virtual-keyboard ${vkbVisible ? 'visible' : ''}`} style={{pointerEvents: vkbVisible ? 'auto' : 'none'}}>
          {vkbLayout === 'emoji' ? (
@@ -3630,6 +3698,7 @@ export default function App() {
             )}
          </div>
       </div>
+
     </>
   );
 }
