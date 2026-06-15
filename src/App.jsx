@@ -1581,6 +1581,7 @@ export default function App() {
   const [vkbLayout, setVkbLayout] = useState('alpha');
   const [vkbShift, setVkbShift] = useState(false);
   const [vkbTarget, setVkbTarget] = useState(null);
+  const lastVkbTap = useRef(0);
 
   const isBannedIP = JSON.parse(localStorage.getItem('ip_blacklist') || '[]').includes(user.ip);
   const isSpammedUser = JSON.parse(localStorage.getItem('user_blacklist') || '[]').some(u => u.id === user.id);
@@ -1679,27 +1680,28 @@ export default function App() {
     };
   }, [vkbVisible, vkbLayout, vkbTarget]);
 
-  const handleVkbKey = (key) => {
+  const handleVkbKey = (key, action = null) => {
     if (!vkbTarget) return;
 
-    // Emoji yoki boshqa element bosilganda yo'qolgan fokusni darhol tiklaymiz
+    // Ikki marta yozib yuborishni oldini olish (Debounce)
+    const now = Date.now();
+    if (now - lastVkbTap.current < 50) return;
+    lastVkbTap.current = now;
+
     if (document.activeElement !== vkbTarget) {
       vkbTarget.focus({ preventScroll: true });
     }
 
     const tag = vkbTarget.tagName;
     let val = vkbTarget.value || '';
-    let start = vkbTarget.selectionStart || 0;
-    let end = vkbTarget.selectionEnd || 0;
+    let start = typeof vkbTarget.selectionStart === 'number' ? vkbTarget.selectionStart : val.length;
+    let end = typeof vkbTarget.selectionEnd === 'number' ? vkbTarget.selectionEnd : val.length;
 
-    // Get the setter descriptor for the value property (works for both input and textarea)
     const descriptor = Object.getOwnPropertyDescriptor(tag === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value');
     const setter = descriptor?.set;
 
-    const upperKey = key.toUpperCase();
-
-    if (upperKey === 'BACKSPACE') {
-      // Delete selected text or one character before cursor
+    if (action === 'DELETE' || key === 'Backspace' || key === 'BACKSPACE') {
+      // O'chirish
       if (start === end && start > 0) {
         val = val.substring(0, start - 1) + val.substring(end);
         start = end = start - 1;
@@ -1707,13 +1709,11 @@ export default function App() {
         val = val.substring(0, start) + val.substring(end);
         end = start;
       }
-    } else if (upperKey === 'ENTER') {
+    } else if (action === 'ENTER' || key === 'ENTER') {
       if (tag === 'TEXTAREA' && !vkbTarget.classList.contains('chat-input')) {
-        // Allow newline in textarea
         val = val.substring(0, start) + '\n' + val.substring(end);
         start = end = start + 1;
       } else {
-        // Submit form or trigger enter on input
         const form = vkbTarget.closest('form');
         if (form) {
           form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
@@ -1730,29 +1730,25 @@ export default function App() {
         return;
       }
     } else {
-      // Insert character at cursor position
+      // Harf yoki bo'shliq qo'shish
       val = val.substring(0, start) + key + val.substring(end);
       start = end = start + key.length;
     }
 
-    // Update the value using the setter (avoids DOM pollution)
     if (setter) {
       setter.call(vkbTarget, val);
     } else {
       vkbTarget.value = val;
     }
 
-    // Dispatch input event to trigger React state updates
+    // Faqat bitta hodisa jo'natamiz (ikki marta ishlashni oldini olish uchun)
     vkbTarget.dispatchEvent(new Event('input', { bubbles: true }));
-    vkbTarget.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Set selection range after next frame to ensure DOM is updated
     requestAnimationFrame(() => {
       vkbTarget.setSelectionRange(start, start);
     });
 
-    // Auto-deactivate shift after typing (unless it was a special key)
-    if (vkbShift && upperKey !== 'BACKSPACE' && upperKey !== 'ENTER' && key.length === 1) {
+    if (vkbShift && action !== 'DELETE' && action !== 'ENTER' && key && key.length === 1) {
       setVkbShift(false);
     }
   };
@@ -3468,7 +3464,7 @@ export default function App() {
                         key={emoji}
                         type="button"
                         className="vkb-emoji-btn"
-                        onClick={(e) => {
+                        onPointerDown={(e) => {
                            e.preventDefault();
                            handleVkbKey(emoji);
                         }}
@@ -3521,6 +3517,8 @@ export default function App() {
                                     setVkbShift(!vkbShift);
                                  } else if (k === '#+=') {
                                     setVkbLayout(vkbLayout === 'alpha' ? 'num' : 'alpha');
+                                 } else if (k === 'Backspace') {
+                                    handleVkbKey(null, 'DELETE');
                                  } else {
                                     handleVkbKey(shouldUppercase ? k.toUpperCase() : k);
                                  }
@@ -3555,7 +3553,7 @@ export default function App() {
                      type="button"
                      className="vkb-key special" 
                      style={{flex: '0 0 auto', minWidth: '60px', background: 'var(--text-blue)', color: '#fff'}}
-                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey('ENTER'); }}
+                     onPointerDown={(e) => { e.preventDefault(); handleVkbKey(null, 'ENTER'); }}
                   >
                      Bajarish
                   </button>
