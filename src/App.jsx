@@ -2736,6 +2736,15 @@ export default function App() {
     subtitleText = baseInfo ? `${baseInfo} - ${names} typing...` : `${names} typing...`;
   }
 
+  // Klaviatura ochilganda xabarlarni doim pastga tushirib turish uchun
+  useEffect(() => {
+    if (vkbVisible && messagesContainerRef.current) {
+      setTimeout(() => {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }, 250);
+    }
+  }, [vkbVisible]);
+
   const handleAdminVoiceAuth = async () => {
     if (user.role !== 'owner') {
       return showToast("Bu yerga faqat Owner kira oladi!");
@@ -2940,7 +2949,7 @@ export default function App() {
       
       {route === 'chat' && (
         <div className="chat-layout" onClick={() => { setContextMenu(null); setShowEmojiPanel(false); setHeaderMenuOpen(false); setIsMainMenuOpen(false); setIsSettingsModalOpen(false); setIsSettingsClosing(false); }}>
-          <div className="app-container">
+          <div className="app-container" style={{ paddingBottom: vkbVisible ? '275px' : '0', transition: 'padding-bottom 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
             <div className={`sidebar ${activeChatId ? 'hidden' : ''}`}>
               <div className="sidebar-header">
                 <div className="sidebar-top">
