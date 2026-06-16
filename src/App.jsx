@@ -1507,7 +1507,7 @@ const AdminPanel = ({ onClose, currentUser, showToast, customConfirm }) => {
                     <div style={{flex: 1, minWidth: '250px'}}>
                         <div className="admin-form-group">
                             <label className="admin-form-label">OpenRouter API Kalit</label>
-                            <input type="password" value={aiKey} onChange={e=>setAiKey(e.target.value)} className="admin-form-input" placeholder="Api key kiriting..." />
+                            <input type="password" value={aiKey} onChange={e=>setAiKey(e.target.value)} className="admin-form-input" placeholder="sk-or-v1-..." />
                             <button className="admin-btn admin-btn-save" style={{marginTop:'8px', width:'100%'}} onClick={saveAiSettings}>Kalitni Saqlash</button>
                         </div>
                     </div>
@@ -2265,7 +2265,7 @@ export default function App() {
   // Owner AI Function
   const triggerOwnerAI = async (text, ownerData, cId) => {
     const sysInst = localStorage.getItem('owner_ai_instruction') || 'Sen Umarovning shaxsiy AI yordamchisisan. Unga kelgan xabarlarga javob berasan.';
-git reset --soft HEAD~1
+    const apiKey = localStorage.getItem('openrouter_key') || '';
     
     let aiResponseText = '';
 
@@ -2275,7 +2275,7 @@ git reset --soft HEAD~1
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: 'gpt-4o-mini',
+                    model: 'google/gemini-2.5-flash',
                     messages: [
                         { role: 'system', content: sysInst },
                         { role: 'user', content: text }
