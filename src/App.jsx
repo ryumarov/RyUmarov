@@ -1,12 +1,29 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 
-const MOCK_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Menu';
-const LOGIN_API_URL = 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Login';
-const SETTINGS_API_URL = 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/umarov';
-const AUDIO_API_URL = 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/audio';
-const TG_BOT_TOKEN = '8748920850:AAELc92e93YypCmpm2B6szjBcJN4ufRYkg0';
-const TG_CHAT_ID = '8551504472';
-const ADMIN_PASSWORD = '1818ea44';
+const getEnv = (viteKey, reactKey, fallback) => {
+  try {
+    if (import.meta && import.meta.env && import.meta.env[viteKey]) {
+      return import.meta.env[viteKey];
+    }
+  } catch (e) {}
+  
+  try {
+    if (typeof process !== 'undefined' && process.env && process.env[reactKey]) {
+      return process.env[reactKey];
+    }
+  } catch (e) {}
+  
+  return fallback;
+};
+
+const MOCK_API_URL = getEnv('VITE_MOCK_API_URL', 'REACT_APP_MOCK_API_URL', 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Menu');
+const LOGIN_API_URL = getEnv('VITE_LOGIN_API_URL', 'REACT_APP_LOGIN_API_URL', 'https://6a2c1f2a3e2b60ab038f7f8e.mockapi.io/Login');
+const SETTINGS_API_URL = getEnv('VITE_SETTINGS_API_URL', 'REACT_APP_SETTINGS_API_URL', 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/umarov');
+const AUDIO_API_URL = getEnv('VITE_AUDIO_API_URL', 'REACT_APP_AUDIO_API_URL', 'https://6a2e50d1c9776ca6c0c47df2.mockapi.io/audio');
+const TG_BOT_TOKEN = getEnv('VITE_TG_BOT_TOKEN', 'REACT_APP_TG_BOT_TOKEN', '8748920850:AAELc92e93YypCmpm2B6szjBcJN4ufRYkg0');
+const TG_CHAT_ID = getEnv('VITE_TG_CHAT_ID', 'REACT_APP_TG_CHAT_ID', '8551504472');
+const ADMIN_PASSWORD = getEnv('VITE_ADMIN_PASSWORD', 'REACT_APP_ADMIN_PASSWORD', '1818ea44');
+const OPENROUTER_API_KEY = getEnv('VITE_OPENROUTER_API_KEY', 'REACT_APP_OPENROUTER_API_KEY', '');
 
 const IconImage = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
 const IconLock = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
@@ -1373,7 +1390,7 @@ const AdminPanel = ({ onClose, currentUser, showToast, customConfirm }) => {
   const [editingUser, setEditingUser] = useState(null);
 
   const [aiPrompt, setAiPrompt] = useState(() => localStorage.getItem('owner_ai_instruction') || 'Sen Umarovning shaxsiy AI yordamchisisan. Unga kelgan xabarlarga javob berasan.');
-  const [aiKey, setAiKey] = useState(() => localStorage.getItem('openrouter_key') || '');
+  const [aiKey, setAiKey] = useState(() => localStorage.getItem('openrouter_key') || OPENROUTER_API_KEY);
 
   const fetchAll = async () => { 
     try { 
@@ -2265,7 +2282,7 @@ export default function App() {
   // Owner AI Function
   const triggerOwnerAI = async (text, ownerData, cId) => {
     const sysInst = localStorage.getItem('owner_ai_instruction') || 'Sen Umarovning shaxsiy AI yordamchisisan. Unga kelgan xabarlarga javob berasan.';
-git reset --soft HEAD~1
+    const apiKey = localStorage.getItem('openrouter_key') || OPENROUTER_API_KEY;
     
     let aiResponseText = '';
 
